@@ -3,10 +3,11 @@ Course in Scientific Visualization and Virtual Reality (UvA 2020)
 
 
 ## Dependencies
+```pip3 install -r requirements.txt```
 
-import vtk
-import vtk.util.numpy_support as VN
-import numpy as np
-import re
-from pathlib import Path
-from multiprocessing import Pool
+## Running
+```python3 VTKscript.py```
+
+## Authors
+* *Sam Verhezen*
+* *Rebecca Davidsson*

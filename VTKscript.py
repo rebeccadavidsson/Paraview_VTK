@@ -85,44 +85,31 @@ def createImage(index):
     colorTransferFunction = vtk.vtkColorTransferFunction()
     colorTransferFunction.SetColorSpaceToDiverging()
     # colorTransferFunction.SetHSVWrap(False)
-    colorTransferFunction.AddRGBPoint(dMin, 0.23, 0.298, 0.85)
+    colorTransferFunction.AddRGBPoint(dMin, 0.03, 0.198, 0.85)
     # colorTransferFunction.AddRGBPoint(dMin+(dMax-dMin)/3, 0.865,0.865,0.865)
-    colorTransferFunction.AddRGBPoint(dMax, 0.705, 0.02, 0.15)
+    colorTransferFunction.AddRGBPoint(dMax, 0.05, 0.02, 0.15)
 
     
     volumeGradientOpacity = vtk.vtkPiecewiseFunction()
     volumeGradientOpacity.AddPoint(dMin, 0)
     volumeGradientOpacity.AddPoint(dMin+(dMax-dMin)*0.9,  0.5)
     volumeGradientOpacity.AddPoint(dMax, 1.0)
-
-    # The property describes how the data will look.
     volumeProperty = vtk.vtkVolumeProperty()
     volumeProperty.SetColor(colorTransferFunction)
     volumeProperty.SetScalarOpacity(opacityTransferFunction)
     volumeProperty.SetGradientOpacity(volumeGradientOpacity)
     volumeProperty.SetInterpolationTypeToLinear()
-    # volumeProperty.ShadeOn()
 
-    # The mapper / ray cast function know how to render the data.
+    # Render data
     volumeMapper = vtk.vtkGPUVolumeRayCastMapper()
     volumeMapper.SetInputConnection(reader.GetOutputPort())
     volumeMapper.SetBlendModeToComposite()
 
-    # The volume holds the mapper and the property and
-    # can be used to position/orient the volume.
+    # Position/orient volume
     volume = vtk.vtkVolume()
     volume.SetMapper(volumeMapper)
     volume.SetProperty(volumeProperty)
     aRenderer.AddActor(volume)
-
-    # Actors are added to the renderer.
-    # aRenderer.AddActor(outline)
-    # aRenderer.AddActor(timeIndex)
-
-    # It is convenient to create an initial view of the data. The
-    # FocalPoint and Position form a vector direction. Later on
-    # (ResetCamera() method) this vector is used to position the camera
-    # to look at the data in this direction.
     aCamera = vtk.vtkCamera()
     aCamera.SetViewUp(0, 1, 0)
     aCamera.SetPosition(0, 0, 1) 
@@ -141,12 +128,12 @@ def createImage(index):
     aCamera.Elevation(10)
     aRenderer.ResetCameraClippingRange()
 
-    # Interact with the data.
+    # Interactive!
     renWin.Render()
     iren.Initialize()
     iren.Start()
 
-    # screenshot code:
+    # Screenshot when hide interactive mode
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(renWin)
     w2if.Update()
