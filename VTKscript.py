@@ -7,7 +7,7 @@ import os.path
 # You can choose from 'v02', 'v03', 'prs' and 'tev'.
 # scalar_value = 'v02'
 scalars = ['v02', 'v03', 'tev']
-opacities = [0.5, 0.8, 0.5]
+opacities = [0.5, 1, 0.5]
 
 # Download this data yourself! It's not uploaded to Git.
 # Download from # http://oceans11.lanl.gov/deepwaterimpact/yA31/300x300x300-FourScalars_resolution/ 
@@ -91,15 +91,15 @@ def createImage(index):
             colorTransferFunction.AddRGBPoint(dMin, 0.03, 0.198, 0.85)
             colorTransferFunction.AddRGBPoint(dMax, 0.7, 0.02, 0.15)
         elif scalar_value == "v03":
-            colorTransferFunction.AddRGBPoint(dMin, 0, 1, 0)
-            colorTransferFunction.AddRGBPoint(dMax, 0.5, 0, 0.5)
+            colorTransferFunction.AddRGBPoint(dMin, 1, 1, 0)
+            colorTransferFunction.AddRGBPoint(dMax, 0.5, 0, 0.8)
         elif scalar_value == "v02":
             colorTransferFunction.AddRGBPoint(dMin, 0.9, 0.898, 0.85)
             colorTransferFunction.AddRGBPoint(dMax, 0.01, 0.02, 0.05)
 
         volumeGradientOpacity = vtk.vtkPiecewiseFunction()
         volumeGradientOpacity.AddPoint(dMin, 0)
-        volumeGradientOpacity.AddPoint(dMin+(dMax-dMin)*0.7,  opacity)
+        volumeGradientOpacity.AddPoint(dMin+(dMax-dMin)*opacity,  opacity)
         volumeGradientOpacity.AddPoint(dMax, 1.0)
 
         # Create volume property (used for volume variable)
