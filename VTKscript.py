@@ -201,7 +201,7 @@ def createImages(directory):
             continue
 
     if len(not_converted) > 0:
-        print("Start converting ", len(not_converted), "images")
+        print("Start converting", len(not_converted), "images")
         for i in tqdm(not_converted):
             createImage(directory, i)
     return True
@@ -214,7 +214,8 @@ def createGif(outputDir):
     print("Creating GIF")
     images = os.listdir(outputDir)
     images.sort()
-    images = [Image.open(outputDir + '/' + i) for i in images if i.endswith('.png')]
+    images = [Image.open(outputDir + '/' + i).convert('RGBA').quantize()
+              for i in images if i.endswith('.png')]
 
     images[0].save('volume.gif', 
                    optimize=False, 
@@ -223,12 +224,6 @@ def createGif(outputDir):
                    interlace=False,
                    append_images=images[1:])
             
-    # outfile = 'volume.gif'
-    # img, *imgs = [Image.open(f) for f in sorted(glob.glob(fp_in))]
-    #         image = outputDir + "/" + filename
-    #         img = Image.open(image)
-    #         img.save(fp=outfile, format='GIF', append_images=image,
-    #                     save_all=True, duration=1000, loop=0)
 
 if __name__ == '__main__':
     # Download this data yourself! It's not uploaded to Git.

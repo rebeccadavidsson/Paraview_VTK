@@ -1,6 +1,7 @@
 # Paraview_VTK
 Course in Scientific Visualization and Virtual Reality (UvA 2020)
 
+![](volume.gif)
 
 ## Dependencies
 ```pip3 install -r requirements.txt```
