@@ -2,16 +2,14 @@ import vtk
 import vtk.util.numpy_support as VN
 import numpy as np
 import os.path
+from tqdm import tqdm
+from PIL import Image
 
 # Choose scalar value to plot. 
 # You can choose from 'v02', 'v03', 'prs' and 'tev'.
-# scalar_value = 'v02'
-scalars = ['v02', 'v03', 'tev']
-opacities = [0.5, 1, 0.5]
 
-# Download this data yourself! It's not uploaded to Git.
-# Download from # http://oceans11.lanl.gov/deepwaterimpact/yA31/300x300x300-FourScalars_resolution/ 
-filename = 'pv_insitu_300x300x300_41035.vti'
+scalars = ['v02', 'v03', 'tev']
+opacities = [0.05, 1, 0.1]
 
 # Define the render method
 method = 'volume'
@@ -24,10 +22,14 @@ if not os.path.isdir(outputDir):
     os.makedirs(outputDir)
 
 
-def createImage(index):
+def createImage(directory, filename):
     """
-    TODO: beschrijving....
+    Create a .png image for a given .vti file, using
+    three scalars and VolumeRendering. Opacities have to be
+    specified for the scalars. 
+    Colors-schemes are hardcoded... :-) 
     """
+
 
     colors = vtk.vtkNamedColors()
     aRenderer = vtk.vtkRenderer()
@@ -36,7 +38,7 @@ def createImage(index):
     interactor = vtk.vtkRenderWindowInteractor()
     interactor.SetRenderWindow(renWin)
     interactor.SetInteractorStyle(vtk.vtkInteractorStyleTrackballCamera())
-    aRenderer.SetBackground(140/255, 140/255, 160/255)
+    aRenderer.SetBackground(15/255, 15/255, 25/255)
 
     # Window size of final png file
     renWin.SetSize(650, 650)
@@ -44,7 +46,7 @@ def createImage(index):
     for scalar_value, opacity in zip(scalars, opacities):
         # data reader
         reader = vtk.vtkXMLImageDataReader()
-        reader.SetFileName(filename)
+        reader.SetFileName(directory + "/" + filename)
         reader.Update()
 
         # Set scalar_value
@@ -59,10 +61,19 @@ def createImage(index):
         # Coloring
         hueLut = vtk.vtkLookupTable()
         hueLut.SetTableRange(dMin, dMax)
-        hueLut.SetHueRange(0.08, 0.98)
-        hueLut.SetSaturationRange(0, 1)
+        # hueLut.SetHueRange(0, 1)
+        # hueLut.SetSaturationRange(0, 1)
         hueLut.SetValueRange(1, 1)
+        hueLut.SetTableValue(dMin, 255/255, 255/255, 212/255)
+        hueLut.SetTableValue(dMax, 255/255, 10/255, 1/255)
         hueLut.Build()
+
+        # create the color bar legend
+        scalar_bar = vtk.vtkScalarBarActor()
+        scalar_bar.SetOrientationToVertical()
+        scalar_bar.UseOpacityOn()
+        scalar_bar.SetLookupTable(hueLut)
+        scalar_bar.SetTitle(scalar_value)
 
         # An outline provides context around the data.
         outlineData = vtk.vtkOutlineFilter()
@@ -80,27 +91,34 @@ def createImage(index):
         # Create transfer mapping scalar value to opacity.
         opacityTransferFunction = vtk.vtkPiecewiseFunction()
         opacityTransferFunction.AddPoint(dMin, 0.0)
-        opacityTransferFunction.AddPoint(dMax, 1)
-        opacityTransferFunction.AddPoint(dMin+2*(dMax-dMin)/10, 0)
+        opacityTransferFunction.AddPoint(dMax, opacity)
+        # opacityTransferFunction.AddPoint(dMin+2*(dMax-dMin), opacity)
+        volumeGradientOpacity = vtk.vtkPiecewiseFunction()
+        volumeGradientOpacity.AddPoint(dMin, 0)
+        # volumeGradientOpacity.AddPoint(dMax, 0.1)
 
         # Create transfer mapping scalar value to color.
         colorTransferFunction = vtk.vtkColorTransferFunction()
         colorTransferFunction.SetColorSpaceToDiverging()
         # colorTransferFunction.SetHSVWrap(False)
         if scalar_value == "tev":
-            colorTransferFunction.AddRGBPoint(dMin, 0.03, 0.198, 0.85)
-            colorTransferFunction.AddRGBPoint(dMax, 0.7, 0.02, 0.15)
+            volumeGradientOpacity.AddPoint(dMax/2, opacity)
+            colorTransferFunction.AddRGBPoint(dMin, 255/255, 255/255, 212/255) # light yellow
+            colorTransferFunction.AddRGBPoint((dMax + dMin)/5, 254/255, 227/255, 145/255)
+            colorTransferFunction.AddRGBPoint((dMax + dMin)/4, 254/255,196/255,79/255)
+            colorTransferFunction.AddRGBPoint((dMax + dMin)/3, 254/255, 153/255, 41/255)
+            colorTransferFunction.AddRGBPoint((dMax + dMin)/2, 217/255, 95/255, 14/255)
+            colorTransferFunction.AddRGBPoint((dMax + dMin), 153/255,52/255,4/255)
         elif scalar_value == "v03":
-            colorTransferFunction.AddRGBPoint(dMin, 1, 1, 0)
-            colorTransferFunction.AddRGBPoint(dMax, 0.5, 0, 0.8)
+            colorTransferFunction.AddRGBPoint(dMax/3, 76/255, 0/255, 153/255) # Green
+            colorTransferFunction.AddRGBPoint(dMin, 0, 204/255, 102/255)  # Purple
+            volumeGradientOpacity.AddPoint(dMax/3, opacity)
         elif scalar_value == "v02":
-            colorTransferFunction.AddRGBPoint(dMin, 0.9, 0.898, 0.85)
-            colorTransferFunction.AddRGBPoint(dMax, 0.01, 0.02, 0.05)
+            volumeGradientOpacity.AddPoint(dMax/2, opacity)
+            colorTransferFunction.AddRGBPoint(dMin, 235/255, 235/255, 255/255)  # Very light blue
+            colorTransferFunction.AddRGBPoint(dMax, 24/255, 32/255, 255/255)  # Blue
 
-        volumeGradientOpacity = vtk.vtkPiecewiseFunction()
-        volumeGradientOpacity.AddPoint(dMin, 0)
-        volumeGradientOpacity.AddPoint(dMin+(dMax-dMin)*opacity,  opacity)
-        volumeGradientOpacity.AddPoint(dMax, 1.0)
+
 
         # Create volume property (used for volume variable)
         volumeProperty = vtk.vtkVolumeProperty()
@@ -111,11 +129,7 @@ def createImage(index):
         volumeProperty.SetInterpolationTypeToLinear()
 
         # Render data
-        # TODO: volgens mij maakt het niet uit welke mapper je kiest
-        if scalar_value == "v02" or scalar_value == "tev":
-            volumeMapper = vtk.vtkSmartVolumeMapper()
-        else:
-            volumeMapper = vtk.vtkGPUVolumeRayCastMapper()
+        volumeMapper = vtk.vtkGPUVolumeRayCastMapper()
         volumeMapper.SetInputConnection(reader.GetOutputPort())
         volumeMapper.SetBlendModeToComposite()
 
@@ -124,10 +138,18 @@ def createImage(index):
         volume.SetMapper(volumeMapper)
         volume.SetProperty(volumeProperty)
         aRenderer.AddActor(volume)
+    
+
+    # create the scalar_bar_widget
+    # scalar_bar_widget = vtk.vtkScalarBarWidget()
+    # scalar_bar_widget.SetInteractor(interactor)
+    # scalar_bar_widget.SetScalarBarActor(scalar_bar)
+    # scalar_bar_widget.On()
+    
     aCamera = vtk.vtkCamera()
     aCamera.SetViewUp(0, 1, 0)
     aCamera.SetPosition(0, 0, 1) 
-    aCamera.SetFocalPoint(0, 0, 0)
+    aCamera.SetFocalPoint(0.6, 0.2, 0)
     aCamera.ComputeViewPlaneNormal()
 
     # Camera views
@@ -138,28 +160,83 @@ def createImage(index):
     aCamera.Dolly(1.2)
 
     # Stand van camera
-    aCamera.Elevation(10)
+    aCamera.Elevation(13)
     aRenderer.ResetCameraClippingRange()
 
     # Render interactive window!
     renWin.Render()
-    interactor.Initialize()
-    interactor.Start()
+    # interactor.Initialize()
+    # interactor.Start()
 
     # Screenshot when hide interactive mode
     # Comment this section if you do not want to save the file to png
-    # w2if = vtk.vtkWindowToImageFilter()
-    # w2if.SetInput(renWin)
-    # w2if.Update()
+    #________________________________________________________________
+    w2if = vtk.vtkWindowToImageFilter()
+    w2if.SetInput(renWin)
+    w2if.Update()
 
-    # outputFile = outputDir+"/"+str(index)+".png"
+    outputFile = outputDir+"/"+str(filename)+".png"
 
-    # writer = vtk.vtkPNGWriter()
-    # writer.SetFileName(outputFile)
-    # writer.SetInputConnection(w2if.GetOutputPort())
-    # writer.Write()
+    writer = vtk.vtkPNGWriter()
+    writer.SetFileName(outputFile)
+    writer.SetInputConnection(w2if.GetOutputPort())
+    writer.Write()
+    #________________________________________________________________
 
 
+def createImages(directory):
+    """
+    Find all files with .vti extension and convert them
+    to .png using the createImage function.
+    It checks first if this file has not been converted before.
+    """
+
+    already_converted = os.listdir(outputDir)
+    not_converted = []
+    
+    for filename in os.listdir(directory):
+        if filename.endswith(".vti") and filename + ".png" not in already_converted:
+            not_converted.append(filename)
+        else:
+            continue
+
+    if len(not_converted) > 0:
+        print("Start converting ", len(not_converted), "images")
+        for i in tqdm(not_converted):
+            createImage(directory, i)
+    return True
+
+
+def createGif(outputDir):
+    """
+    Returns a GIF from .png files in a given directory
+    """
+    print("Creating GIF")
+    images = os.listdir(outputDir)
+    images.sort()
+    images = [Image.open(outputDir + '/' + i) for i in images if i.endswith('.png')]
+
+    images[0].save('volume.gif', 
+                   optimize=False, 
+                   duration=500,  
+                   save_all=True,
+                   interlace=False,
+                   append_images=images[1:])
+            
+    # outfile = 'volume.gif'
+    # img, *imgs = [Image.open(f) for f in sorted(glob.glob(fp_in))]
+    #         image = outputDir + "/" + filename
+    #         img = Image.open(image)
+    #         img.save(fp=outfile, format='GIF', append_images=image,
+    #                     save_all=True, duration=1000, loop=0)
 
 if __name__ == '__main__':
-    createImage(filename)
+    # Download this data yourself! It's not uploaded to Git.
+    # Download from # http://oceans11.lanl.gov/deepwaterimpact/yA31/300x300x300-FourScalars_resolution/
+    # createImage('data', 'pv_insitu_300x300x300_10487.vti')
+
+    # Specify the folder name where data is stored
+    # This function finds all .vti data and converts it to a .png
+    createImages('data')
+
+    createGif(outputDir)
