@@ -5,6 +5,7 @@ import os.path
 from tqdm import tqdm
 from PIL import Image
 import csv
+import matplotlib.pylab as plt
 
 # Choose scalar value to plot. 
 # You can choose from 'v02', 'v03', 'prs' and 'tev'.
@@ -30,7 +31,6 @@ def createImage(directory, filename):
     Colors-schemes are hardcoded... :-) 
     """
 
-
     colors = vtk.vtkNamedColors()
     aRenderer = vtk.vtkRenderer()
     renWin = vtk.vtkRenderWindow()
@@ -55,6 +55,7 @@ def createImage(directory, filename):
         # Get the min and maximum valule
         dary = VN.vtk_to_numpy(
             reader.GetOutput().GetPointData().GetScalars(scalar_value))
+        
         dMax = np.amax(dary)
         dMin = np.amin(dary)
 
@@ -140,12 +141,6 @@ def createImage(directory, filename):
         aRenderer.AddActor(volume)
     
 
-    # create the scalar_bar_widget
-    # scalar_bar_widget = vtk.vtkScalarBarWidget()
-    # scalar_bar_widget.SetInteractor(interactor)
-    # scalar_bar_widget.SetScalarBarActor(scalar_bar)
-    # scalar_bar_widget.On()
-    
     aCamera = vtk.vtkCamera()
     aCamera.SetViewUp(0, 1, 0)
     aCamera.SetPosition(0, 0, 1) 
@@ -242,15 +237,46 @@ def createCSV(outputDir, outputFile):
             writer.writerow(row)
             
 
+def getInfo(directory, scalar_value):
+    temperatures = []
+    for filename in os.listdir(directory):
+        if filename.endswith(".vti"):
+            reader = vtk.vtkXMLImageDataReader()
+            reader.SetFileName(directory + "/" + filename)
+            reader.Update()
+            reader.GetOutput().GetPointData().SetActiveAttribute(scalar_value, 0)
+            dary = VN.vtk_to_numpy(
+                reader.GetOutput().GetPointData().GetScalars(scalar_value))
+            dMax = np.amax(dary)
+            dMin = np.amin(dary)
+            temperatures.append(dMin + dMax / 2)
+            print(dMin + dMax / 2)
+
+    indexes = list(range(1, len(temperatures) + 1))
+    f = open("cvlibd/server/data/volume-render/temperature.csv", 'w')
+
+    with f:
+        writer = csv.writer(f)
+        writer.writerow(["timestep", "temperature"])
+        for row in zip(indexes, temperatures):
+            writer.writerow(row)
+
+    return temperatures
+
 if __name__ == '__main__':
+
+    # temperatures = getInfo('data', 'tev')
+
     # Download this data yourself! It's not uploaded to Git.
     # Download from http://oceans11.lanl.gov/deepwaterimpact/yA31/300x300x300-FourScalars_resolution/
     # Specify the folder name where data is stored
     # This function finds all .vti data and converts it to a .png
     createImages('data')
 
-    # createGif(outputDir)
+    # Choose to comment function out or not
+    createGif(outputDir)
 
     # Call this function in order to write the filenames to csv,
     # only used for the HTML-representation.
     createCSV(outputDir, "cvlibd/server/data/volume-render/data.csv")
+

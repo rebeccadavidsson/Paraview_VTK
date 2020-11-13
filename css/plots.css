@@ -1,0 +1,24 @@
+#temperatures {
+    position: absolute;
+    left: 150px;
+    bottom: 20px;
+}
+
+#v02 {
+    position: absolute;
+    right: 150px;
+    bottom: 20px;
+}
+
+.axis {
+}
+
+.dot {
+    fill: silver;
+}
+
+.line {
+    fill: none;
+    stroke: rgba(119, 131, 230, 0.5);
+    stroke-width: 2px;
+}
