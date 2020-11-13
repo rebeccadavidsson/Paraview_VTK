@@ -1,0 +1,55 @@
+{
+    "cinema": {
+        "specification": "D",
+        "version": 2
+    },
+    "sources": {
+        "data_csv": {
+            "uri": "data.csv",
+            "table": null,
+            "mime": "text/csv"
+        }
+    },
+    "displays": {
+        "main": {
+            "label": "Main view",
+            "source": "data_csv",
+            "structures": {
+                "Value": {
+                    "type": "scalar",
+                    "label": "Timestep",
+                    "io": "input",
+                    "arguments": {
+                        "value": "Value",
+                        "units": ""
+                    }
+                },
+                "image": {
+                    "type": "image-file-format-by-ext",
+                    "label": "Image",
+                    "io": "output",
+                    "arguments": {
+                        "uri_format": "%s",
+                        "0": "image"
+                    }
+                }
+            }
+        },
+        "table": {
+            "label": "Tables View",
+            "source": "data_csv",
+            "structures": {
+                "inTable": {
+                    "type": "table",
+                    "label": "Dataset",
+                    "io": "input"
+                },
+                "outTable": {
+                    "type": "table",
+                    "label": "Selected Values",
+                    "io": "output"
+                }
+            }
+        }
+    }
+}
