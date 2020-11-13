@@ -10,18 +10,18 @@
 	<meta charset="utf-8" />
 
 	<!--Default styling for SuperBuilder content-->
-	<link rel="stylesheet" href="css/superBuilder_plain.css">
+	<link rel="stylesheet" href="cvlibd/server/css/superBuilder_plain.css">
 	</link>
 
 	<!--Dependencies-->
-	<script src="../lib/d3.min.js"></script>
-	<script src="../lib/ElementQueries.js"></script>
-	<script src="../lib/ResizeSensor.js"></script>
+	<script src="cvlibd/lib/d3.min.js"></script>
+	<script src="cvlibd/lib/ElementQueries.js"></script>
+	<script src="cvlibd/lib/ResizeSensor.js"></script>
 
 	<!--CVLIB-D-->
-	<script src="../js/cvlibD.js"></script>
-	<script src="../js/SuperBuilder.js"></script>
-	<script src="../js/SuperLoader.js"></script>
+	<script src="cvlibd/js/cvlibD.js"></script>
+	<script src="cvlibd/js/SuperBuilder.js"></script>
+	<script src="cvlibd/js/SuperLoader.js"></script>
 </head>
 <style>
 	#sidebar {
@@ -56,7 +56,7 @@
 		<div id="selections">
 			Database:
 			<select id="databaseSelect" onchange="loadCurrentDb()">
-				<option value="data/volume-render/parameters.json">Volume Render</option>
+				<option value="cvlibd/server/data/volume-render/parameters.json">Volume Render</option>
 			</select>
 			<br>
 			<select id="displaySelect" onchange="activateCurrentDisplay()"></select>

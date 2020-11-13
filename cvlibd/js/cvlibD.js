@@ -367,7 +367,7 @@
 	CVLIBD.loadJSON = function(url, callback) {
 		var jsonRequest = new XMLHttpRequest();
 
-		jsonRequest.open("GET",'data/volume-render/parameters.json',true);
+		jsonRequest.open("GET",'cvlibd/server/data/volume-render/parameters.json',true);
 
 		jsonRequest.onreadystatechange = function() {
 			if (jsonRequest.readyState === 4) {
