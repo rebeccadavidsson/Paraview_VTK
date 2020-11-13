@@ -4,10 +4,10 @@ import numpy as np
 import os.path
 from tqdm import tqdm
 from PIL import Image
+import csv
 
 # Choose scalar value to plot. 
 # You can choose from 'v02', 'v03', 'prs' and 'tev'.
-
 scalars = ['v02', 'v03', 'tev']
 opacities = [0.05, 1, 0.1]
 
@@ -15,7 +15,7 @@ opacities = [0.05, 1, 0.1]
 method = 'volume'
 
 # Output folder of images
-outputDir = "output"
+outputDir = "cvlibd/server/data/volume-render/images"
 
 
 if not os.path.isdir(outputDir):
@@ -223,15 +223,34 @@ def createGif(outputDir):
                    save_all=True,
                    interlace=False,
                    append_images=images[1:])
+
+
+def createCSV(outputDir, outputFile):
+    images = os.listdir(outputDir)
+    images.sort()
+
+    # Add folder name
+    images = ["images/" + image for image in images]
+        
+    indexes = list(range(1, len(images) + 1))
+    f = open(outputFile, 'w')
+
+    with f:
+        writer = csv.writer(f)
+        writer.writerow(["Value", "image"])
+        for row in zip(indexes, images):
+            writer.writerow(row)
             
 
 if __name__ == '__main__':
     # Download this data yourself! It's not uploaded to Git.
-    # Download from # http://oceans11.lanl.gov/deepwaterimpact/yA31/300x300x300-FourScalars_resolution/
-    # createImage('data', 'pv_insitu_300x300x300_10487.vti')
-
+    # Download from http://oceans11.lanl.gov/deepwaterimpact/yA31/300x300x300-FourScalars_resolution/
     # Specify the folder name where data is stored
     # This function finds all .vti data and converts it to a .png
     createImages('data')
 
-    createGif(outputDir)
+    # createGif(outputDir)
+
+    # Call this function in order to write the filenames to csv,
+    # only used for the HTML-representation.
+    createCSV(outputDir, "cvlibd/server/data/volume-render/data.csv")
