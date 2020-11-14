@@ -12,23 +12,19 @@ body {
 	margin: 3px;
 
 }
-/* .cvlibD_structure[io="input"] {
-	border: solid 2px darkblue;
-} */
+
 .cvlibD_structure[io="output"] {
-	/* border: solid 2px darkred; */
 	border: none;
 }
 
 .SUPERBUILDER_Header {
 	padding: 3px;
-
 	color: white;
 }
 
-.cvlibD_structure[io="input"] .SUPERBUILDER_Header {
+/* .cvlibD_structure[io="input"] .SUPERBUILDER_Header {
 	background: darkblue;
-}
+} */
 .cvlibD_structure[io="output"] .SUPERBUILDER_Header {
 	background: darkred;
 }
@@ -114,4 +110,28 @@ body {
 	top: 0;
 	width: 400px;
 	height: 100%;
+}
+
+.controlWrapper {
+	width: 200px;
+}
+
+.controlWrapper input {
+-webkit-appearance: none;
+  width: 100%;
+  height: 5px;
+  background: #e7e7e7;
+  outline: none;
+}
+
+
+
+.controlWrapper input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  background: gold;
+  border-radius: 50%;
+  cursor: pointer;
 }

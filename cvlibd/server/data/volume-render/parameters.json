@@ -24,6 +24,24 @@
                         "units": ""
                     }
                 },
+                "Rotation": {
+                    "type": "scalar",
+                    "label": "Timestep",
+                    "io": "input",
+                    "arguments": {
+                        "value": "Rotation",
+                        "units": ""
+                    }
+                },
+                "xValue": {
+                    "type": "scalar",
+                    "label": "Timestep",
+                    "io": "input",
+                    "arguments": {
+                        "value": "xValue",
+                        "units": ""
+                    }
+                },
                 "image": {
                     "type": "image-file-format-by-ext",
                     "label": "Image",

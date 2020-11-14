@@ -214,6 +214,8 @@
 		for (var key in this.outputs) {
 			var output = this.outputs[key];
 			output.query = intersection;
+
+			updateLine(intersection[0].Value - 1);
 			output.update();
 		}
 	}

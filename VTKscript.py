@@ -238,34 +238,41 @@ def createCSV(outputDir, outputFile):
             
 
 def getInfo(directory, scalar_value):
-    temperatures = []
+    temperatures, v02, v03, pressures = [], [], [], []
+    combined = [temperatures, v02, v03, pressures]
+    scalar_values = ["tev", "v02", "v03", "prs"]
+    
+
     for filename in os.listdir(directory):
         if filename.endswith(".vti"):
             reader = vtk.vtkXMLImageDataReader()
             reader.SetFileName(directory + "/" + filename)
             reader.Update()
-            reader.GetOutput().GetPointData().SetActiveAttribute(scalar_value, 0)
-            dary = VN.vtk_to_numpy(
-                reader.GetOutput().GetPointData().GetScalars(scalar_value))
-            dMax = np.amax(dary)
-            dMin = np.amin(dary)
-            temperatures.append(dMin + dMax / 2)
-            print(dMin + dMax / 2)
+            for scalar_value, list_name in zip(scalar_values, combined):
+                reader.GetOutput().GetPointData().SetActiveAttribute(scalar_value, 0)
+                dary = VN.vtk_to_numpy(
+                    reader.GetOutput().GetPointData().GetScalars(scalar_value))
+                dMax = np.amax(dary)
+                dMin = np.amin(dary)
+                list_name.append(dMin + dMax / 2)
+                print(dMin + dMax / 2)
 
-    indexes = list(range(1, len(temperatures) + 1))
-    f = open("cvlibd/server/data/volume-render/temperature.csv", 'w')
+    for scalar_value, list_name in zip(scalar_values, combined):
+        indexes = list(range(1, len(list_name) + 1))
+        f = open("cvlibd/server/data/volume-render/" + scalar_value + ".csv", 'w')
 
-    with f:
-        writer = csv.writer(f)
-        writer.writerow(["timestep", "temperature"])
-        for row in zip(indexes, temperatures):
-            writer.writerow(row)
+        with f:
+            writer = csv.writer(f)
+            writer.writerow(["timestep", scalar_value])
+            for row in zip(indexes, list_name):
+                writer.writerow(row)
 
-    return temperatures
+    return True
 
 if __name__ == '__main__':
 
-    # temperatures = getInfo('data', 'tev')
+    getInfo('data', 'tev')
+    # exit()
 
     # Download this data yourself! It's not uploaded to Git.
     # Download from http://oceans11.lanl.gov/deepwaterimpact/yA31/300x300x300-FourScalars_resolution/

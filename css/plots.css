@@ -1,17 +1,24 @@
-#temperatures {
+#plots {
+    width: 100%;
+    top: 480px;
     position: absolute;
-    left: 150px;
-    bottom: 20px;
+    padding: 50px;
+    background-color: rgb(20, 20, 30);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
 }
 
-#v02 {
-    position: absolute;
-    right: 150px;
-    bottom: 20px;
+
+.axis path, .axis text{
+    stroke: rgb(100, 100, 120);
+    color:  rgb(100, 100, 120);
 }
 
-.axis {
+.axis line {
+    display: none;
 }
+
+
 
 .dot {
     fill: silver;
@@ -22,3 +29,4 @@
     stroke: rgba(119, 131, 230, 0.5);
     stroke-width: 2px;
 }
+

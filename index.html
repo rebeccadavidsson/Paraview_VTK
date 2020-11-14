@@ -18,6 +18,7 @@
 	<script src="cvlibd/lib/ResizeSensor.js"></script>
 
 	<!--CVLIB-D-->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<script src="cvlibd/js/cvlibD.js"></script>
 	<script src="cvlibd/js/SuperBuilder.js"></script>
 	<script src="cvlibd/js/SuperLoader.js"></script>
@@ -65,8 +66,11 @@
 		<div id="inputs"></div>
 	</div>
 	<div id="outputs"></div>
-	<div id="temperatures"></div>
-	<div id="v02"></div>
+	<div id="plots">
+		<div id="tev"></div>
+		<div id="v03"></div>
+		<div id="prs"></div>
+	</div>
 </body>
 <script>
 	//Variable declarations
@@ -100,8 +104,10 @@
 			newOption.innerText = display.label ? display.label : key;
 			displaySelect.appendChild(newOption);
 		}
+		
 		activateCurrentDisplay();
 	}
+
 
 	//Set the current display. Clear the current contents and 
 	//add structures from new display.
@@ -120,7 +126,10 @@
 		for (var key in currentDisplay.outputs) {
 			outputs.appendChild(currentDisplay.outputs[key].content);
 		}
+
 	}
+
 </script>
+
 
 </html>
