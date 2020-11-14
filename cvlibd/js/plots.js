@@ -12,8 +12,9 @@ var color_prs = ['#ffffcc', '#a1dab4', '#41b6c4', '#2c7fb8', '#253494'];
 
 var colorranges = [color_tev, color_v03, color_prs];
 var csvs = ["tev", "v03", "prs"]
+var ttles = ['Temperature (eV)', "Asteroid volume", "Pressure (µbar)"]
 
-var n = 24;
+var n = 27;
 var xScale = d3.scaleLinear()
     .domain([0, n - 1]) // input
     .range([0, width]); // output
@@ -62,8 +63,9 @@ for (let i = 0; i < csvs.length; i++) {
                 .attr("d", line); // 11. Calls the line generator 
 
             svg.append("text")
-                .text(csvs[i])
+                .text(ttles[i])
                 .style("fill", "white")
+                .attr("transform", "translate(10, -10)")
 
             var color = d3.scaleLinear().range(colorranges[i]).domain([1, 2, 3, 4, 5]);
 

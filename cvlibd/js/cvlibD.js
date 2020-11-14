@@ -162,6 +162,8 @@
 	 * @param {CVLIBD.Database} - A reference to the database that this display is a part of 
 	 */
 	CVLIBD.Display = function(id, json, database) {
+		
+
 		/** @type {string} The key value of this display */
 		this.id = id;
 		/** @type {string} The user-friendly external name used to refer to this display */
@@ -216,6 +218,7 @@
 			output.query = intersection;
 
 			updateLine(intersection[0].Value - 1);
+
 			output.update();
 		}
 	}
@@ -230,6 +233,8 @@
 				self.structures[key].build();
 			self.updateInput();
 		});
+		
+		
 	};
 
 	/*****************************************
@@ -354,6 +359,13 @@
 	 * be called.
 	 */
 	CVLIBD.OutputStructure.prototype.update = function() {
+
+		var lens = document.getElementsByClassName("img-zoom-lens")
+		if (lens.length > 0){
+			for (let index = 0; index < lens.length; index++) {
+				lens[index].remove();
+			}
+		}
 		if (this.updateListeners.length == 0)
 			console.log("No update listeners set for output structure " + this.id + "!" +
 						" Did you forget to set one in the structure's builder?");
@@ -367,6 +379,7 @@
 	 *****************************************/
 
 	CVLIBD.loadJSON = function(url, callback) {
+		
 		var jsonRequest = new XMLHttpRequest();
 
 		jsonRequest.open("GET",'cvlibd/server/data/volume-render/parameters.json',true);

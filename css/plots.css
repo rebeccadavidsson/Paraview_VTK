@@ -1,8 +1,11 @@
+* {box-sizing: border-box;}
+
 #plots {
     width: 100%;
     top: 480px;
     position: absolute;
     padding: 50px;
+    padding-left: 10px;
     background-color: rgb(20, 20, 30);
     display: grid;
     grid-template-columns: repeat(3, 1fr);
