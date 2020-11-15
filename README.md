@@ -32,6 +32,12 @@ python -m http.server 8080
 and open the ```index.html```
 
 
+### Results
+Temperature heatmaps of 4 different timesteps:
+![](GIFS/temperature_13306.gif)
+![](GIFS/temperature_22010.gif)
+![](GIFS/temperature_35332.gif)
+![](GIFS/temperature_49978.gif)
 
 
 ## Authors

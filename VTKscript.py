@@ -5,7 +5,8 @@ import os.path
 from tqdm import tqdm
 from PIL import Image
 import csv
-import matplotlib.pylab as plt
+import pickle
+
 
 # Choose scalar value to plot. 
 # You can choose from 'v02', 'v03', 'prs' and 'tev'.
@@ -242,7 +243,6 @@ def getInfo(directory, scalar_value):
     combined = [temperatures, v02, v03, pressures]
     scalar_values = ["tev", "v02", "v03", "prs"]
     
-
     for filename in os.listdir(directory):
         if filename.endswith(".vti"):
             reader = vtk.vtkXMLImageDataReader()
