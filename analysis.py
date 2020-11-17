@@ -7,19 +7,19 @@ from PIL import Image
 import os
 
 
-reader = vtk.vtkXMLImageDataReader()
-reader.SetFileName('data/pv_insitu_300x300x300_22010.vti')
-reader.Update()
-dary = VN.vtk_to_numpy(
-    reader.GetOutput().GetPointData().GetScalars('tev'))
+# reader = vtk.vtkXMLImageDataReader()
+# reader.SetFileName('data/pv_insitu_300x300x300_22010.vti')
+# reader.Update()
+# dary = VN.vtk_to_numpy(
+#     reader.GetOutput().GetPointData().GetScalars('v03'))
 
-pickle.dump(dary, open("save.p", "wb"))
+# pickle.dump(dary, open("save.p", "wb"))
 
 
 f = pickle.load(open("save.p", "rb"))
 
 f = f.reshape(300, 300, 300)
-f = np.swapaxes(f, 1, 0)
+f = np.swapaxes(f, 0, 1)
 f = np.flipud(f)
 
 def createGif(outputDir):
@@ -31,7 +31,7 @@ def createGif(outputDir):
     images = [Image.open(outputDir + '/' + str(i) + ".png").convert('RGBA').quantize()
               for i in images]
 
-    images[0].save('temperature_22010.gif',
+    images[0].save('GIFS/v03_22010.gif',
                    optimize=False, 
                    duration=50,  
                    save_all=True,
@@ -40,7 +40,7 @@ def createGif(outputDir):
 
 def heatmap2d(arr: np.ndarray, i):
     fig = plt.figure()
-    plt.imshow(arr, cmap='gist_heat')
+    plt.imshow(arr, cmap='plasma') # gist_heat
     plt.colorbar()
     fig.savefig('heatmap/' + str(i), dpi=fig.dpi)
     plt.close()

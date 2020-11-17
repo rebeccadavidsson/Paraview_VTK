@@ -9,6 +9,7 @@
     background-color: rgb(20, 20, 30);
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    height: calc(100% - 480px);
 }
 
 
@@ -16,11 +17,14 @@
     stroke: rgb(100, 100, 120);
     color:  rgb(100, 100, 120);
 }
-
+/* 
 .axis line {
     display: none;
-}
+} */
 
+#legends {
+    background: yellow;
+}
 
 
 .dot {

@@ -6,30 +6,30 @@ from tqdm import tqdm
 from PIL import Image
 import csv
 import pickle
-
-
-# Choose scalar value to plot. 
-# You can choose from 'v02', 'v03', 'prs' and 'tev'.
-scalars = ['v02', 'v03', 'tev']
-opacities = [0.05, 1, 0.1]
+from helpers import createGif, createCSV, getInfo
 
 # Define the render method
 method = 'volume'
 
 # Output folder of images
 outputDir = "cvlibd/server/data/volume-render/images"
+prs_outputDir = "cvlibd/server/data/volume-render/prs_images"
 
 
 if not os.path.isdir(outputDir):
     os.makedirs(outputDir)
 
+if not os.path.isdir(prs_outputDir):
+    os.makedirs(prs_outputDir)
 
-def createImage(directory, filename):
+
+def createImage(directory, outputDir, filename, scalars, opacities, interactiveWindow=False,
+                savePickle=False, loadFromPickle=False):
     """
     Create a .png image for a given .vti file, using
     three scalars and VolumeRendering. Opacities have to be
-    specified for the scalars. 
-    Colors-schemes are hardcoded... :-) 
+    specified for the scalars.
+    Colors-schemes are hardcoded... :-)
     """
 
     colors = vtk.vtkNamedColors()
@@ -53,29 +53,26 @@ def createImage(directory, filename):
         # Set scalar_value
         reader.GetOutput().GetPointData().SetActiveAttribute(scalar_value, 0)
 
-        # Get the min and maximum valule
+        # Get the min and maximum value from the array of points.
+        # This is a flat array, but can be reshaped to a (300x300x300) array
         dary = VN.vtk_to_numpy(
             reader.GetOutput().GetPointData().GetScalars(scalar_value))
-        
+        if savePickle:
+            pickle.open(dary, open('pickle/' + filename, 'wb'))
+
         dMax = np.amax(dary)
         dMin = np.amin(dary)
 
         # Coloring
         hueLut = vtk.vtkLookupTable()
         hueLut.SetTableRange(dMin, dMax)
-        # hueLut.SetHueRange(0, 1)
-        # hueLut.SetSaturationRange(0, 1)
-        hueLut.SetValueRange(1, 1)
+        hueLut.SetHueRange(0, 1)
+        hueLut.SetRampToLinear()
+        hueLut.SetSaturationRange(0, 1)
+        # hueLut.SetValueRange(1, 1)
         hueLut.SetTableValue(dMin, 255/255, 255/255, 212/255)
         hueLut.SetTableValue(dMax, 255/255, 10/255, 1/255)
         hueLut.Build()
-
-        # create the color bar legend
-        scalar_bar = vtk.vtkScalarBarActor()
-        scalar_bar.SetOrientationToVertical()
-        scalar_bar.UseOpacityOn()
-        scalar_bar.SetLookupTable(hueLut)
-        scalar_bar.SetTitle(scalar_value)
 
         # An outline provides context around the data.
         outlineData = vtk.vtkOutlineFilter()
@@ -110,16 +107,23 @@ def createImage(directory, filename):
             colorTransferFunction.AddRGBPoint((dMax + dMin)/4, 254/255,196/255,79/255)
             colorTransferFunction.AddRGBPoint((dMax + dMin)/3, 254/255, 153/255, 41/255)
             colorTransferFunction.AddRGBPoint((dMax + dMin)/2, 217/255, 95/255, 14/255)
-            colorTransferFunction.AddRGBPoint((dMax + dMin), 153/255,52/255,4/255)
+            colorTransferFunction.AddRGBPoint((dMax + dMin), 163/255,62/255,4/255)
         elif scalar_value == "v03":
-            colorTransferFunction.AddRGBPoint(dMax/3, 76/255, 0/255, 153/255) # Green
-            colorTransferFunction.AddRGBPoint(dMin, 0, 204/255, 102/255)  # Purple
+            colorTransferFunction.AddRGBPoint(dMax/3, 76/255, 0/255, 123/255) # Green
+            colorTransferFunction.AddRGBPoint(dMin, 0, 184/255, 92/255)  # Purple
             volumeGradientOpacity.AddPoint(dMax/3, opacity)
         elif scalar_value == "v02":
             volumeGradientOpacity.AddPoint(dMax/2, opacity)
             colorTransferFunction.AddRGBPoint(dMin, 235/255, 235/255, 255/255)  # Very light blue
-            colorTransferFunction.AddRGBPoint(dMax, 24/255, 32/255, 255/255)  # Blue
-
+            colorTransferFunction.AddRGBPoint(dMax, 24/255, 32/255, 205/255)  # Blue
+        elif scalar_value == "prs":
+            volumeGradientOpacity.AddPoint(dMax, opacity) # Coolwarm (blue to red)
+            colorTransferFunction.AddRGBPoint(dMin, 178/255, 24/255, 42/255)
+            colorTransferFunction.AddRGBPoint((dMin + dMax)/7, 239/255, 254/255, 98/255)
+            colorTransferFunction.AddRGBPoint((dMin + dMax)/6, 253/255, 219/255, 199/255)
+            colorTransferFunction.AddRGBPoint((dMin + dMax)/5, 209/255, 229/255, 240/255)
+            colorTransferFunction.AddRGBPoint((dMin + dMax)/4, 103/255, 169/255, 207/255)
+            colorTransferFunction.AddRGBPoint((dMin + dMax)/3, 33/255, 102/255, 172/255)
 
 
         # Create volume property (used for volume variable)
@@ -145,7 +149,10 @@ def createImage(directory, filename):
     aCamera = vtk.vtkCamera()
     aCamera.SetViewUp(0, 1, 0)
     aCamera.SetPosition(0, 0, 1) 
-    aCamera.SetFocalPoint(0.6, 0.2, 0)
+    if "prs" in scalars:
+        aCamera.SetFocalPoint(0.7, 0, 0.3)
+    else:
+        aCamera.SetFocalPoint(0.6, 0.2, 0)
     aCamera.ComputeViewPlaneNormal()
 
     # Camera views
@@ -158,29 +165,30 @@ def createImage(directory, filename):
     # Stand van camera
     aCamera.Elevation(13)
     aRenderer.ResetCameraClippingRange()
+    renWin.Render()
 
     # Render interactive window!
-    renWin.Render()
-    # interactor.Initialize()
-    # interactor.Start()
+    if interactiveWindow:
+        interactor.Initialize()
+        interactor.Start()
+    else:
+        # Screenshot when not in interactive mode
+        w2if = vtk.vtkWindowToImageFilter()
+        w2if.SetInput(renWin)
+        w2if.Update()
 
-    # Screenshot when hide interactive mode
-    # Comment this section if you do not want to save the file to png
-    #________________________________________________________________
-    w2if = vtk.vtkWindowToImageFilter()
-    w2if.SetInput(renWin)
-    w2if.Update()
+        if "prs" in scalars:
+            outputFile = outputDir+"/"+str(filename) + "prs.png"
+        else:
+            outputFile = outputDir+"/"+str(filename) + ".png"
 
-    outputFile = outputDir+"/"+str(filename)+".png"
-
-    writer = vtk.vtkPNGWriter()
-    writer.SetFileName(outputFile)
-    writer.SetInputConnection(w2if.GetOutputPort())
-    writer.Write()
-    #________________________________________________________________
+        writer = vtk.vtkPNGWriter()
+        writer.SetFileName(outputFile)
+        writer.SetInputConnection(w2if.GetOutputPort())
+        writer.Write()
 
 
-def createImages(directory):
+def createImages(directory, outputDir, scalars, opacities, interactiveWindow):
     """
     Find all files with .vti extension and convert them
     to .png using the createImage function.
@@ -189,101 +197,56 @@ def createImages(directory):
 
     already_converted = os.listdir(outputDir)
     not_converted = []
-    
+
     for filename in os.listdir(directory):
-        if filename.endswith(".vti") and filename + ".png" not in already_converted:
+        if "prs" in scalars:
+            if filename.endswith(".vti") and filename + "prs.png" not in already_converted:
+                not_converted.append(filename)
+        elif filename.endswith(".vti") and filename + ".png" not in already_converted:
             not_converted.append(filename)
-        else:
-            continue
 
     if len(not_converted) > 0:
         print("Start converting", len(not_converted), "images")
         for i in tqdm(not_converted):
-            createImage(directory, i)
+            createImage(directory, outputDir, i, scalars, opacities, interactiveWindow=False)
     return True
 
-
-def createGif(outputDir):
-    """
-    Returns a GIF from .png files in a given directory
-    """
-    print("Creating GIF")
-    images = os.listdir(outputDir)
-    images.sort()
-    images = [Image.open(outputDir + '/' + i).convert('RGBA').quantize()
-              for i in images if i.endswith('.png')]
-
-    images[0].save('volume.gif', 
-                   optimize=False, 
-                   duration=500,  
-                   save_all=True,
-                   interlace=False,
-                   append_images=images[1:])
-
-
-def createCSV(outputDir, outputFile):
-    images = os.listdir(outputDir)
-    images.sort()
-
-    # Add folder name
-    images = ["images/" + image for image in images]
-        
-    indexes = list(range(1, len(images) + 1))
-    f = open(outputFile, 'w')
-
-    with f:
-        writer = csv.writer(f)
-        writer.writerow(["Value", "image"])
-        for row in zip(indexes, images):
-            writer.writerow(row)
-            
-
-def getInfo(directory, scalar_value):
-    temperatures, v02, v03, pressures = [], [], [], []
-    combined = [temperatures, v02, v03, pressures]
-    scalar_values = ["tev", "v02", "v03", "prs"]
-    
-    for filename in os.listdir(directory):
-        if filename.endswith(".vti"):
-            reader = vtk.vtkXMLImageDataReader()
-            reader.SetFileName(directory + "/" + filename)
-            reader.Update()
-            for scalar_value, list_name in zip(scalar_values, combined):
-                reader.GetOutput().GetPointData().SetActiveAttribute(scalar_value, 0)
-                dary = VN.vtk_to_numpy(
-                    reader.GetOutput().GetPointData().GetScalars(scalar_value))
-                dMax = np.amax(dary)
-                dMin = np.amin(dary)
-                list_name.append(dMin + dMax / 2)
-                print(dMin + dMax / 2)
-
-    for scalar_value, list_name in zip(scalar_values, combined):
-        indexes = list(range(1, len(list_name) + 1))
-        f = open("cvlibd/server/data/volume-render/" + scalar_value + ".csv", 'w')
-
-        with f:
-            writer = csv.writer(f)
-            writer.writerow(["timestep", scalar_value])
-            for row in zip(indexes, list_name):
-                writer.writerow(row)
-
-    return True
 
 if __name__ == '__main__':
 
-    getInfo('data', 'tev')
+    # Convert data to csv for plotting
+    getInfo('data')
     # exit()
+
+    # Test image with one file
+    # createImage('data', "pv_insitu_300x300x300_22010.vti", interactiveWindow=True)
 
     # Download this data yourself! It's not uploaded to Git.
     # Download from http://oceans11.lanl.gov/deepwaterimpact/yA31/300x300x300-FourScalars_resolution/
     # Specify the folder name where data is stored
     # This function finds all .vti data and converts it to a .png
-    createImages('data')
+
+
+    # Choose scalar value to plot.
+    # You can choose from 'v02', 'v03', 'prs' and 'tev'.
+    print("Creating images")
+    scalars = ['v02', 'v03', 'tev']
+    opacities = [0.1, 0.3, 0.1]
+    createImages('data', outputDir, scalars, opacities, interactiveWindow=False)
+
+    # print("Creating pressure images")
+    scalars = ['prs']
+    opacities = [0.7]
+    createImages('data', prs_outputDir, scalars, opacities, interactiveWindow=False)
 
     # Choose to comment function out or not
-    createGif(outputDir)
+    createGif(outputDir, "GIFS/allscalars")
+    createGif(prs_outputDir, "GIFS/prs")
 
     # Call this function in order to write the filenames to csv,
     # only used for the HTML-representation.
-    createCSV(outputDir, "cvlibd/server/data/volume-render/data.csv")
+    createCSV(outputDir, "cvlibd/server/data/volume-render/data.csv",
+              output_type="scalars")
+    createCSV(prs_outputDir,
+              "cvlibd/server/data/volume-render/data_prs.csv", output_type="prs")
 

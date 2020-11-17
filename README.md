@@ -5,7 +5,8 @@ Website:
 https://rebeccadavidsson.github.io/Paraview_VTK/
 
 
-![](volume.gif)
+![](GIFS/allscalars.gif)
+![](GIFS/prs.gif)
 
 ## Data
 Data is downloaded from http://oceans11.lanl.gov/deepwaterimpact/yA31/300x300x300-FourScalars_resolution/ and stored in the ```data``` folder.

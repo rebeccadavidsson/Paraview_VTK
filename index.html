@@ -30,7 +30,7 @@
 		top: 0px;
 		bottom: 0px;
 		left: 0px;
-		width: 300px;
+		width: 320px;
 		overflow: auto;
 	}
 
@@ -42,6 +42,7 @@
 		margin: 5px;
 		padding: 3px;
 		border: 1px solid black;
+		margin-top: 15px;
 	}
 
 	#outputs {
@@ -56,9 +57,9 @@
 	<div id="sidebar">
 
 		<div id="selections">
-			Database:
 			<select id="databaseSelect" onchange="loadCurrentDb()">
-				<option value="cvlibd/server/data/volume-render/parameters.json">Volume Render</option>
+				<option value="cvlibd/server/data/volume-render/parameters.json">Volume Render: Temperature, Astroid, Water</option>
+				<option value="cvlibd/server/data/volume-render/parameters_prs.json">Volume Render: Pressure</option>
 			</select>
 			<br>
 			<select id="displaySelect" onchange="activateCurrentDisplay()"></select>
@@ -66,6 +67,7 @@
 		<div id="inputs"></div>
 	</div>
 	<div id="outputs"></div>
+	<div id="legends"></div>
 	<div id="plots">
 		<div id="tev"></div>
 		<div id="v03"></div>

@@ -381,8 +381,12 @@
 	CVLIBD.loadJSON = function(url, callback) {
 		
 		var jsonRequest = new XMLHttpRequest();
-
-		jsonRequest.open("GET",'cvlibd/server/data/volume-render/parameters.json',true);
+		if (url == "cvlibd/server/data/volume-render/parameters.json") {
+			jsonRequest.open("GET", 'cvlibd/server/data/volume-render/parameters.json', true);
+		}
+		else if (url == "cvlibd/server/data/volume-render/parameters_prs.json") {
+			jsonRequest.open("GET", 'cvlibd/server/data/volume-render/parameters_prs.json', true);
+		}
 
 		jsonRequest.onreadystatechange = function() {
 			if (jsonRequest.readyState === 4) {

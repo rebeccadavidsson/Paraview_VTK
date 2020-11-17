@@ -14,7 +14,7 @@ var colorranges = [color_tev, color_v03, color_prs];
 var csvs = ["tev", "v03", "prs"]
 var ttles = ['Temperature (eV)', "Asteroid volume", "Pressure (µbar)"]
 
-var n = 27;
+var n = 36;
 var xScale = d3.scaleLinear()
     .domain([0, n - 1]) // input
     .range([0, width]); // output
@@ -24,10 +24,14 @@ for (let i = 0; i < csvs.length; i++) {
 
     d3.csv("cvlibd/server/data/volume-render/" + csvs[i] + ".csv",
         function(dataset) {
-        
+            
+            var margin_bottom = 0.07
+            if (csvs[i] == "prs") {
+                margin_bottom = 1000000000;
+            }
 
             var yScale = d3.scaleLinear()
-                .domain([Math.min.apply(Math, dataset.map(function (o) { return o[csvs[i]]; })),
+                .domain([Math.min.apply(Math, dataset.map(function (o) { return o[csvs[i]] - margin_bottom; })),
                          Math.max.apply(Math, dataset.map(function (o) { return o[csvs[i]]; }))]) // input 
                 .range([height, 0]); // output 
 
@@ -115,6 +119,57 @@ for (let i = 0; i < csvs.length; i++) {
                 .style("stroke-width", 1)
                 .style("stroke", "black")
                 .style("fill", "none");
+            
+            var key = d3.select("#legends")
+                .append("svg")
+                .attr("width", 100)
+                .attr("height", 100);
+                
+            var legend = key.append("defs")
+                .append("linearGradient")
+                .attr("id", "linear-gradients" + i)
+                .attr("transform", "translate(" + (i * 100) + ", 200)")
+                .attr("gradientTransform", "rotate(90)")
+                .attr("spreadMethod", "pad");
+
+            legend.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", color(1));
+
+            legend.append("stop")
+                .attr("offset", "25%")
+                .attr("stop-color", color(2));
+
+            legend.append("stop")
+                .attr("offset", "50%")
+                .attr("stop-color", color(3));
+
+            legend.append("stop")
+                .attr("offset", "75%")
+                .attr("stop-color", color(4));
+
+            legend.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", color(5));
+
+            key.append("rect")
+                .attr("width", 100)
+                .attr("height", 170)
+                .style("fill", "url(#linear-gradients" + i + ")")
+                .attr("transform", "translate(10,10)");
+
+            // key.append("g")
+            //     .attr("class", "y axis")
+            //     .attr("transform", "translate(0,30)")
+            //     .call(x)
+            //     .append("text")
+            //     .attr("transform", "rotate(-90)")
+            //     .attr("y", 0)
+            //     .attr("dy", ".71em")
+            //     .style("text-anchor", "end")
+            //     .text("axis title");
+
+
 
     });
 }
@@ -130,3 +185,4 @@ function updateLine(select) {
         .style("stroke", "rgb(50, 50, 70)")
         .style("fill", "none");
 }
+

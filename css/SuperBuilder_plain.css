@@ -22,9 +22,14 @@ body {
 	color: white;
 }
 
+
 /* .cvlibD_structure[io="input"] .SUPERBUILDER_Header {
 	background: darkblue;
 } */
+#databaseSelect {
+	padding: 6px;
+	border-radius: 10px;
+}
 .cvlibD_structure[io="output"] .SUPERBUILDER_Header {
 	background: darkred;
 }
@@ -32,6 +37,9 @@ body {
 .SUPERBUILDER_Content {
 	padding: 3px;
 	position: relative;
+}
+.SUPERBUILDER_Content img {
+	margin-top: -10px;
 }
 
 .SUPERBUILDER_Content .graticuleWrapper {
