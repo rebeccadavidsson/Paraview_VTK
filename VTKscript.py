@@ -215,7 +215,7 @@ def createImages(directory, outputDir, scalars, opacities, interactiveWindow):
 if __name__ == '__main__':
 
     # Convert data to csv for plotting
-    getInfo('data')
+    # getInfo('data')
     # exit()
 
     # Test image with one file

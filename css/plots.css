@@ -1,8 +1,7 @@
 * {box-sizing: border-box;}
 
-#plots {
+#plots, #plots2 {
     width: 100%;
-    top: 480px;
     position: absolute;
     padding: 50px;
     padding-left: 10px;
@@ -11,20 +10,43 @@
     grid-template-columns: repeat(3, 1fr);
     height: calc(100% - 480px);
 }
+#plots {
+    top: 780px;
+}
+#plots2 {
+    top: 480px;
+}
 
 
 .axis path, .axis text{
     stroke: rgb(100, 100, 120);
     color:  rgb(100, 100, 120);
 }
-/* 
+
 .axis line {
     display: none;
-} */
+}
 
 #legends {
-    background: yellow;
+    position: absolute;
+    top: 200px;
 }
+#legends > svg {
+    position: relative;
+    display: block;
+    margin-left: 60px;
+}
+
+#legends {
+  position: fixed; /* Make it stick/fixed */
+  top: 0; /* Stay on top */
+  width: 100%; /* Full width */
+  transition: 0.3s; /* Transition effect when sliding down (and up) */
+  transition-delay: 0.3s;
+  top: 200px;
+}
+
+
 
 
 .dot {

@@ -52,7 +52,7 @@ def createCSV(outputDir, outputFile, output_type):
 def getInfo(directory):
     temperatures, v02, v03, pressures = [], [], [], []
     combined = [temperatures, v02, v03, pressures]
-    scalar_values = ["tev", "v02", "v03", "prs"]
+    scalar_values = ["tev", "v03", "prs"]
 
     for filename in os.listdir(directory):
         if filename.endswith(".vti"):
@@ -63,10 +63,10 @@ def getInfo(directory):
                 reader.GetOutput().GetPointData().SetActiveAttribute(scalar_value, 0)
                 dary = VN.vtk_to_numpy(
                     reader.GetOutput().GetPointData().GetScalars(scalar_value))
-                dMax = np.amax(dary)
-                dMin = np.amin(dary)
-                list_name.append(dMin + dMax / 2)
-                print(dMin + dMax / 2)
+                # dMax = np.amax(dary)
+                # dMin = np.amin(dary)
+                list_name.append(np.mean(dary))
+                print(np.mean(dary))
 
     for scalar_value, list_name in zip(scalar_values, combined):
         indexes = list(range(1, len(list_name) + 1))

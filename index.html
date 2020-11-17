@@ -68,10 +68,15 @@
 	</div>
 	<div id="outputs"></div>
 	<div id="legends"></div>
-	<div id="plots">
-		<div id="tev"></div>
-		<div id="v03"></div>
-		<div id="prs"></div>
+		<div id="plots">
+			<div id="tev"></div>
+			<div id="v03"></div>
+			<div id="prs"></div>
+		</div>
+	<div id="plots2">
+		<div id="tev_max"></div>
+		<div id="v03_max"></div>
+		<div id="prs_max"></div>
 	</div>
 </body>
 <script>
@@ -131,6 +136,17 @@
 		}
 
 	}
+
+	var prevScrollpos = window.pageYOffset;
+		window.onscroll = function () {
+			var currentScrollPos = window.pageYOffset;
+			if (prevScrollpos > currentScrollPos) {
+				document.getElementById("legends").style.opacity = "1";
+			} else {
+				document.getElementById("legends").style.opacity = "0";
+			}
+			prevScrollpos = currentScrollPos;
+		}
 
 
 </script>

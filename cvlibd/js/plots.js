@@ -8,11 +8,16 @@ var color_tev = ['#993404', '#D95F0E', '#FE9929', '#FEE391', '#FFFFD4'];
 
 var color_v03 = ['rgb(0, 204, 102)', '#2d9f13', '#06763b' ,'pink','rgb(92,5,88)']
 
-var color_prs = ['#ffffcc', '#a1dab4', '#41b6c4', '#2c7fb8', '#253494'];
+// var color_prs = ['#ffffcc', '#a1dab4', '#41b6c4', '#2c7fb8', '#253494'];
 
-var colorranges = [color_tev, color_v03, color_prs];
-var csvs = ["tev", "v03", "prs"]
-var ttles = ['Temperature (eV)', "Asteroid volume", "Pressure (µbar)"]
+var color_prs = ["#ca0020", "#f4a582", "#f7f7f7", "#92c5de", "#0571b0"];
+
+
+var colorranges = [color_tev, color_v03, color_prs, color_tev, color_v03, color_prs];
+var csvs = ["tev_max", "v03_max", "prs_max", "tev", "v03", "prs"]
+var names = ["tev", "v03", "prs", "tev", "v03", "prs"]
+var ttles = ['Max Temperature (eV)', "Max Asteroid volume", "Max Pressure (µbar)", 
+            'Mean Temperature (eV)', "Asteroid mean volume", "Mean Pressure (µbar)"]
 
 var n = 36;
 var xScale = d3.scaleLinear()
@@ -25,20 +30,16 @@ for (let i = 0; i < csvs.length; i++) {
     d3.csv("cvlibd/server/data/volume-render/" + csvs[i] + ".csv",
         function(dataset) {
             
-            var margin_bottom = 0.07
-            if (csvs[i] == "prs") {
-                margin_bottom = 1000000000;
-            }
-
+            var margin_bottom = 0;
             var yScale = d3.scaleLinear()
-                .domain([Math.min.apply(Math, dataset.map(function (o) { return o[csvs[i]] - margin_bottom; })),
-                         Math.max.apply(Math, dataset.map(function (o) { return o[csvs[i]]; }))]) // input 
+                .domain([Math.min.apply(Math, dataset.map(function (o) { return o[names[i]] - margin_bottom; })),
+                    Math.max.apply(Math, dataset.map(function (o) { return o[names[i]]; }))]) // input 
                 .range([height, 0]); // output 
 
 
             var line = d3.line()
                 .x(function (d, i) { return xScale(i); }) // set the x values for the line generator
-                .y(function (d) { return yScale(d[csvs[i]]); }) // set the y values for the line generator 
+                .y(function (d) { return yScale(d[names[i]]); }) // set the y values for the line generator 
                 .curve(d3.curveMonotoneX) // apply smoothing to the line
 
             // 1. Add the SVG to the page and employ #2
@@ -77,7 +78,7 @@ for (let i = 0; i < csvs.length; i++) {
             var y = d3.scaleLinear().range([height, 0]);
 
             x.domain(d3.extent(dataset, function (d, i) { return i; }));
-            y.domain(d3.extent(dataset, function (d) { return d[csvs[i]]; }));
+            y.domain(d3.extent(dataset, function (d) { return d[names[i]]; }));
 
             var linearGradient = svg.append("defs")
                 .append("linearGradient")
@@ -120,56 +121,53 @@ for (let i = 0; i < csvs.length; i++) {
                 .style("stroke", "black")
                 .style("fill", "none");
             
-            var key = d3.select("#legends")
-                .append("svg")
-                .attr("width", 100)
-                .attr("height", 100);
-                
-            var legend = key.append("defs")
-                .append("linearGradient")
-                .attr("id", "linear-gradients" + i)
-                .attr("transform", "translate(" + (i * 100) + ", 200)")
-                .attr("gradientTransform", "rotate(90)")
-                .attr("spreadMethod", "pad");
+            if (i < 3) {
+                var key = d3.select("#legends")
+                    .append("svg")
+                    .attr("width", 200)
+                    .attr("height", 80);
+                    
+                var legend = key.append("defs")
+                    .append("linearGradient")
+                    .attr("id", "linear-gradients" + i)
+                    .attr("spreadMethod", "pad");
 
-            legend.append("stop")
-                .attr("offset", "0%")
-                .attr("stop-color", color(1));
+                legend.append("stop")
+                    .attr("offset", "0%")
+                    .attr("stop-opacity", 1)
+                    .attr("stop-color", color(1));
 
-            legend.append("stop")
-                .attr("offset", "25%")
-                .attr("stop-color", color(2));
+                legend.append("stop")
+                    .attr("offset", "25%")
+                    .attr("stop-color", color(2));
 
-            legend.append("stop")
-                .attr("offset", "50%")
-                .attr("stop-color", color(3));
+                legend.append("stop")
+                    .attr("offset", "50%")
+                    .attr("stop-color", color(3));
 
-            legend.append("stop")
-                .attr("offset", "75%")
-                .attr("stop-color", color(4));
+                legend.append("stop")
+                    .attr("offset", "75%")
+                    .attr("stop-color", color(4));
 
-            legend.append("stop")
-                .attr("offset", "100%")
-                .attr("stop-color", color(5));
+                legend.append("stop")
+                    .attr("offset", "100%")
+                    .attr("stop-color", color(5));
 
-            key.append("rect")
-                .attr("width", 100)
-                .attr("height", 170)
-                .style("fill", "url(#linear-gradients" + i + ")")
-                .attr("transform", "translate(10,10)");
+                key.append("rect")
+                    .attr("width", "100%")
+                    .attr("height", 18)
+                    .style("fill", "url(#linear-gradients" + i + ")")
+                    .attr("transform", "translate(0, 25)");
 
-            // key.append("g")
-            //     .attr("class", "y axis")
-            //     .attr("transform", "translate(0,30)")
-            //     .call(x)
-            //     .append("text")
-            //     .attr("transform", "rotate(-90)")
-            //     .attr("y", 0)
-            //     .attr("dy", ".71em")
-            //     .style("text-anchor", "end")
-            //     .text("axis title");
-
-
+                key.append("g")
+                    .attr("transform", "translate(5,0)")
+                    .call(x)
+                    .append("text")
+                    .attr("y", 0)
+                    .attr("dy", ".71em")
+                    .style("fill", "white")
+                    .text(ttles[i]);
+            }
 
     });
 }
