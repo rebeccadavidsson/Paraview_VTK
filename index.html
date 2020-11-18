@@ -68,15 +68,34 @@
 	</div>
 	<div id="outputs"></div>
 	<div id="legends"></div>
+	<div class="plots-wrapper">
+		<h3>Temperature, asteroid volume and water pressure over time.</h3>
 		<div id="plots">
 			<div id="tev"></div>
 			<div id="v03"></div>
 			<div id="prs"></div>
 		</div>
-	<div id="plots2">
-		<div id="tev_max"></div>
-		<div id="v03_max"></div>
-		<div id="prs_max"></div>
+		<div id="plots2">
+			<div id="tev_max"></div>
+			<div id="v03_max"></div>
+			<div id="prs_max"></div>
+		</div>
+	</div>
+	<div class="heatplot-container"> 
+		<div class="heatplot-wrapper">
+			<h3>Analysis of temperature with vtk clipping</h3>
+			<div class="grids">
+				<div class="heatplot-item">
+					<img src="/GIFS/tev_22010.gif" alt="GIF">
+				</div>
+				<div class="heatplot-vti-image">
+					<img src="/GIFS/tev_slices.gif" alt="heatplot-vti-image"/>
+				</div>
+			</div>
+		</div>
+
+		<hr class="hr"></hr>
+
 	</div>
 </body>
 <script>
@@ -137,16 +156,20 @@
 
 	}
 
-	var prevScrollpos = window.pageYOffset;
-		window.onscroll = function () {
-			var currentScrollPos = window.pageYOffset;
-			if (prevScrollpos > currentScrollPos) {
-				document.getElementById("legends").style.opacity = "1";
-			} else {
-				document.getElementById("legends").style.opacity = "0";
-			}
-			prevScrollpos = currentScrollPos;
+	// var prevScrollpos = window.pageYOffset;
+	window.onscroll = function () {
+		var currentScrollPos = window.pageYOffset;
+		if (currentScrollPos > 400) {
+			document.getElementById("legends").style.opacity = "0";
+			document.getElementById("selections").style.opacity = "0";
+			document.getElementById("inputs").style.opacity = "0";
+		} else {
+			document.getElementById("legends").style.opacity = "1";
+			document.getElementById("selections").style.opacity = "1";
+			document.getElementById("inputs").style.opacity = "1";
 		}
+		// prevScrollpos = currentScrollPos;
+	}
 
 
 </script>

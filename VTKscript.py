@@ -6,13 +6,15 @@ from tqdm import tqdm
 from PIL import Image
 import csv
 import pickle
-from helpers import createGif, createCSV, getInfo
+from helpers import createGif, createCSV, getInfo, createGif_slices
+import pyvista as pv
+
 
 # Define the render method
 method = 'volume'
 
 # Output folder of images
-outputDir = "cvlibd/server/data/volume-render/images"
+outputDir = "cvlibd/server/data/volume-render/tev_images"
 prs_outputDir = "cvlibd/server/data/volume-render/prs_images"
 
 
@@ -23,8 +25,9 @@ if not os.path.isdir(prs_outputDir):
     os.makedirs(prs_outputDir)
 
 
-def createImage(directory, outputDir, filename, scalars, opacities, interactiveWindow=False,
-                savePickle=False, loadFromPickle=False):
+def createImage(directory, outputDir, filename, scalars, opacities, 
+                interactiveWindow=False, savePickle=False, 
+                loadFromPickle=False, plane=False):
     """
     Create a .png image for a given .vti file, using
     three scalars and VolumeRendering. Opacities have to be
@@ -69,7 +72,7 @@ def createImage(directory, outputDir, filename, scalars, opacities, interactiveW
         hueLut.SetHueRange(0, 1)
         hueLut.SetRampToLinear()
         hueLut.SetSaturationRange(0, 1)
-        # hueLut.SetValueRange(1, 1)
+        hueLut.SetValueRange(1, 1)
         hueLut.SetTableValue(dMin, 255/255, 255/255, 212/255)
         hueLut.SetTableValue(dMax, 255/255, 10/255, 1/255)
         hueLut.Build()
@@ -145,7 +148,6 @@ def createImage(directory, outputDir, filename, scalars, opacities, interactiveW
         volume.SetProperty(volumeProperty)
         aRenderer.AddActor(volume)
     
-
     aCamera = vtk.vtkCamera()
     aCamera.SetViewUp(0, 1, 0)
     aCamera.SetPosition(0, 0, 1) 
@@ -180,12 +182,241 @@ def createImage(directory, outputDir, filename, scalars, opacities, interactiveW
         if "prs" in scalars:
             outputFile = outputDir+"/"+str(filename) + "prs.png"
         else:
-            outputFile = outputDir+"/"+str(filename) + ".png"
+            outputFile = outputDir+"/"+str(filename) + "test.png"
 
         writer = vtk.vtkPNGWriter()
         writer.SetFileName(outputFile)
         writer.SetInputConnection(w2if.GetOutputPort())
         writer.Write()
+
+
+
+def createPlaneImage(directory, outputDir, filename, 
+                interactiveWindow=False):
+    """
+    Create a .png image for a given .vti file, using
+    three scalars and VolumeRendering. Opacities have to be
+    specified for the scalars.
+    Colors-schemes are hardcoded... :-)
+    """
+
+    colors = vtk.vtkNamedColors()
+    aRenderer = vtk.vtkRenderer()
+    renWin = vtk.vtkRenderWindow()
+    renWin.AddRenderer(aRenderer)
+    interactor = vtk.vtkRenderWindowInteractor()
+    interactor.SetRenderWindow(renWin)
+    interactor.SetInteractorStyle(vtk.vtkInteractorStyleTrackballCamera())
+    aRenderer.SetBackground(255/255, 255/255, 255/255)
+
+    # Window size of final png file
+    renWin.SetSize(750, 550)
+
+    if interactiveWindow:
+        x_locations = np.linspace(-2282674.723407029, 2304660.8051767494, 1)
+    else:
+        x_locations = np.linspace(-2282674.723407029, 2304660.8051767494, 300)
+    scalar_value = "rho"
+    opacity = 0.25
+
+
+    # data reader
+    reader = vtk.vtkXMLImageDataReader()
+    reader.SetFileName(directory + "/" + filename)
+    reader.Update()
+
+    # Set scalar_value
+    reader.GetOutput().GetPointData().SetActiveAttribute(scalar_value, 0)
+
+    # Get the min and maximum value from the array of points.
+    # This is a flat array, but can be reshaped to a (300x300x300) array
+    dary = VN.vtk_to_numpy(
+        reader.GetOutput().GetPointData().GetScalars(scalar_value))
+
+    dMax = np.amax(dary)
+    dMin = np.amin(dary)
+
+    
+    # Coloring
+    hueLut = vtk.vtkLookupTable()
+    hueLut.SetTableRange(dMin, dMax)
+    hueLut.SetHueRange(dMin, dMax)
+    hueLut.SetRampToLinear()
+    hueLut.SetSaturationRange(dMin, dMax)
+    hueLut.SetValueRange(dMin, dMax)
+    hueLut.SetTableValue(dMin, 0/255, 0/255, 255/255)
+    hueLut.SetTableValue(dMax, 0/255, 0/255, 255/255)    
+    hueLut.Build()
+
+    ctf = vtk.vtkColorTransferFunction()
+    ctf.SetColorSpaceToDiverging()
+
+    ctf.AddRGBPoint(0.0, 0, 0, 0)
+    ctf.AddRGBPoint(0.1, 55/255, 6/255, 23/255)
+    ctf.AddRGBPoint(0.2, 106/255, 4/255, 15/255)
+    ctf.AddRGBPoint(0.3, 157/255, 2/255, 8/255)
+    ctf.AddRGBPoint(0.4, 208/255, 0, 0)
+    ctf.AddRGBPoint(0.5, 220/255, 47/255, 2/255)
+    ctf.AddRGBPoint(0.6, 232/255, 93/255, 4/255)
+    ctf.AddRGBPoint(0.7, 244/255, 140/255, 6/255)
+    ctf.AddRGBPoint(0.8, 250/255, 163/255, 7/255)
+    ctf.AddRGBPoint(0.9, 255/255, 186/255, 8/255)
+    ctf.AddRGBPoint(1, 255/255, 196/255, 9/255)
+
+    hueLut = vtk.vtkLookupTable()
+    hueLut.SetNumberOfTableValues(10)
+    hueLut.Build()
+    for i in range(0, 10):
+        rgb = list(ctf.GetColor(float(i)/10))+[1]
+        hueLut.SetTableValue(i, rgb)
+    
+    # An outline provides context around the data.
+    outlineData = vtk.vtkOutlineFilter()
+    outlineData.SetInputConnection(reader.GetOutputPort())
+    outlineData.Update()
+
+    mapOutline = vtk.vtkPolyDataMapper()
+    mapOutline.SetInputConnection(outlineData.GetOutputPort())
+
+    outline = vtk.vtkActor()
+    outline.SetMapper(mapOutline)
+    outline.GetProperty().SetColor(colors.GetColor3d("Black"))
+
+    # Volume rendering
+    # Create transfer mapping scalar value to opacity.
+    opacityTransferFunction = vtk.vtkPiecewiseFunction()
+    opacityTransferFunction.AddPoint(dMin, 0.0)
+    opacityTransferFunction.AddPoint(dMax, opacity)
+    opacityTransferFunction.AddPoint(dMin+2*(dMax-dMin), opacity)
+    volumeGradientOpacity = vtk.vtkPiecewiseFunction()
+    volumeGradientOpacity.AddPoint(dMin, 0)
+    volumeGradientOpacity.AddPoint(dMax, 0.1)
+
+    # Create transfer mapping scalar value to color.
+    colorTransferFunction = vtk.vtkColorTransferFunction()
+    colorTransferFunction.SetColorSpaceToDiverging()
+    colorTransferFunction.SetHSVWrap(False)
+
+
+    for x in x_locations:
+        aRenderer = vtk.vtkRenderer()
+        renWin = vtk.vtkRenderWindow()
+        renWin.AddRenderer(aRenderer)
+        interactor = vtk.vtkRenderWindowInteractor()
+        interactor.SetRenderWindow(renWin)
+        interactor.SetInteractorStyle(vtk.vtkInteractorStyleTrackballCamera())
+        aRenderer.SetBackground(225/255, 225/255, 225/255)
+
+        # Window size of final png file
+        renWin.SetSize(750, 600)
+
+        volumeGradientOpacity.AddPoint(dMax/2, opacity)
+        colorTransferFunction.AddRGBPoint(dMin, 255/255, 255/255, 212/255) # light yellow
+        colorTransferFunction.AddRGBPoint((dMax + dMin)/5, 254/255, 227/255, 145/255)
+        colorTransferFunction.AddRGBPoint((dMax + dMin)/4, 254/255,196/255,79/255)
+        colorTransferFunction.AddRGBPoint((dMax + dMin)/3, 254/255, 153/255, 41/255)
+        colorTransferFunction.AddRGBPoint((dMax + dMin)/2, 217/255, 95/255, 14/255)
+        colorTransferFunction.AddRGBPoint((dMax + dMin), 163/255,62/255,4/255)
+
+
+        # Create volume property (used for volume variable)
+        volumeProperty = vtk.vtkVolumeProperty()
+        volumeProperty.ShadeOff()
+        volumeProperty.SetColor(colorTransferFunction)
+        volumeProperty.SetScalarOpacity(opacityTransferFunction)
+        volumeProperty.SetGradientOpacity(volumeGradientOpacity)
+        volumeProperty.SetInterpolationTypeToLinear()
+
+        # Render data
+        volumeMapper = vtk.vtkGPUVolumeRayCastMapper()
+        volumeMapper.SetInputConnection(reader.GetOutputPort())
+        volumeMapper.SetBlendModeToComposite()
+        
+        # Position/orient volume
+        volume = vtk.vtkVolume()
+        volume.SetMapper(volumeMapper)
+        volume.SetProperty(volumeProperty)
+        aRenderer.AddActor(volume)
+
+        #create a plane to cut,here it cuts in the XZ direction (xz normal=(1,0,0);XY =(0,0,1),YZ =(0,1,0)
+        plane = vtk.vtkPlane()
+        plane.SetOrigin(x, 900000.0000024999, -6.400048732757568e-01)
+        plane.SetNormal(1, 0, 0)
+
+        #create cutter
+        cutter = vtk.vtkCutter()
+        cutter.SetCutFunction(plane)
+        cutter.SetInputConnection(reader.GetOutputPort())
+        cutter.Update()
+        cutterMapper = vtk.vtkPolyDataMapper()
+        cutterMapper.SetInputConnection(cutter.GetOutputPort())
+        cutterMapper.SetLookupTable(hueLut)
+        # cutterMapper.SetColorModeToDirectScalars()
+
+        #create plane actor
+        planeActor = vtk.vtkActor()
+        planeActor.GetProperty().SetColor(0, 0, 1)
+        planeActor.GetProperty().SetLineWidth(1)
+        planeActor.SetMapper(cutterMapper)
+        aRenderer.AddActor(planeActor)
+
+        #create a plane to cut,here it cuts in the XZ direction (xz normal=(1,0,0);XY =(0,0,1),YZ =(0,1,0)
+        plane2 = vtk.vtkPlane()
+        plane2.SetOrigin(0, 0, 0)
+        plane2.SetNormal(0, 1, 0)
+
+        #create cutter
+        cutter = vtk.vtkCutter()
+        cutter.SetCutFunction(plane2)
+        cutter.SetInputConnection(reader.GetOutputPort())
+        cutter.Update()
+        cutterMapper = vtk.vtkPolyDataMapper()
+        cutterMapper.SetInputConnection(cutter.GetOutputPort())
+        cutterMapper.SetColorModeToDirectScalars()
+        
+        #create plane actor
+        planeActor = vtk.vtkActor()
+        planeActor.GetProperty().SetColor(1, 1, 1)
+        planeActor.GetProperty().SetLineWidth(3)
+        planeActor.SetMapper(cutterMapper)
+        aRenderer.AddActor(planeActor)
+
+        aCamera = vtk.vtkCamera()
+        aCamera.SetViewUp(0, 1, 0)
+        aCamera.SetPosition(0, 0, 1) 
+        aCamera.SetFocalPoint(0.6, 0.2, 0)
+        aCamera.ComputeViewPlaneNormal()
+
+        # Camera views
+        aRenderer.SetActiveCamera(aCamera)
+        aRenderer.ResetCamera()
+        aRenderer.SetBackground(1, 1, 1)
+
+        # Zooming in
+        aCamera.Dolly(1.4)
+
+
+        # Stand van camera
+        aCamera.Elevation(13)
+        aRenderer.ResetCameraClippingRange()
+        renWin.Render()
+
+        # Render interactive window!
+        if interactiveWindow:
+            interactor.Initialize()
+            interactor.Start()
+        else:
+            # Screenshot when not in interactive mode
+            w2if = vtk.vtkWindowToImageFilter()
+            w2if.SetInput(renWin)
+            w2if.Update()
+
+            outputFile = outputDir+"/"+str(round(x)) + ".png"
+
+            writer = vtk.vtkPNGWriter()
+            writer.SetFileName(outputFile)
+            writer.SetInputConnection(w2if.GetOutputPort())
+            writer.Write()
 
 
 def createImages(directory, outputDir, scalars, opacities, interactiveWindow):
@@ -214,17 +445,23 @@ def createImages(directory, outputDir, scalars, opacities, interactiveWindow):
 
 if __name__ == '__main__':
 
-    # Convert data to csv for plotting
-    # getInfo('data')
-    # exit()
-
-    # Test image with one file
-    # createImage('data', "pv_insitu_300x300x300_22010.vti", interactiveWindow=True)
-
     # Download this data yourself! It's not uploaded to Git.
     # Download from http://oceans11.lanl.gov/deepwaterimpact/yA31/300x300x300-FourScalars_resolution/
     # Specify the folder name where data is stored
     # This function finds all .vti data and converts it to a .png
+
+    # createGif_slices(outputDir, "GIFS/tev_slices")
+    # exit()
+
+    # Convert data to csv for plotting
+    # getInfo('data')
+    # exit()
+    
+
+    # Test image with one file
+    createPlaneImage('data', outputDir, "pv_insitu_300x300x300_22010.vti",
+                interactiveWindow=True)
+    exit()
 
 
     # Choose scalar value to plot.

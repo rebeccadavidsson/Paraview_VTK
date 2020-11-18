@@ -41,13 +41,17 @@
   position: fixed; /* Make it stick/fixed */
   top: 0; /* Stay on top */
   width: 100%; /* Full width */
-  transition: 0.3s; /* Transition effect when sliding down (and up) */
-  transition-delay: 0.3s;
+  /* transition-delay: 0.3s; */
   top: 200px;
 }
 
 
-
+.plots-wrapper h3 {
+    position: absolute;
+    top: 476px;
+    left: 50px;
+    z-index: 10;
+}
 
 .dot {
     fill: silver;
@@ -59,3 +63,48 @@
     stroke-width: 2px;
 }
 
+.heatplot-container {
+    position: relative;
+    margin-top: 600px;
+    height: 800px;
+    width: 100%;
+}
+
+.heatplot-wrapper {
+    margin: 0 auto;
+    border-radius: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    position: absolute;
+    padding: 35px;
+    height: 100%;
+    width: 94%;
+    margin-bottom: 50px;
+    background-color: white;
+    -webkit-box-shadow: 5px 5px 16px 9px #000000; 
+    box-shadow: 5px 5px 16px 9px #000000;
+    overflow: hidden;
+}
+
+.heatplot-wrapper h3 {
+    text-align: left;
+    color: #383838;
+}
+
+.grids {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.heatplot-item {
+    width: 40%;
+    margin-left: -100px;
+}
+.heatplot-vti-image {
+    margin-left: -50px;
+    margin-top: -50px;
+}  
+
+.hr {
+    border: 1px solid black;
+}

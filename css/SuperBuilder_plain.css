@@ -13,6 +13,10 @@ body {
 
 }
 
+.label {
+	text-align: end;
+}
+
 .cvlibD_structure[io="output"] {
 	border: none;
 }

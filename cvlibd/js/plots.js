@@ -40,7 +40,7 @@ for (let i = 0; i < csvs.length; i++) {
             var line = d3.line()
                 .x(function (d, i) { return xScale(i); }) // set the x values for the line generator
                 .y(function (d) { return yScale(d[names[i]]); }) // set the y values for the line generator 
-                .curve(d3.curveMonotoneX) // apply smoothing to the line
+                .curve(d3.curveBasis) // apply smoothing to the line
 
             // 1. Add the SVG to the page and employ #2
             var svg = d3.select("#" + csvs[i]).append("svg")
@@ -67,10 +67,19 @@ for (let i = 0; i < csvs.length; i++) {
                 .attr("class", "line") // Assign a class for styling 
                 .attr("d", line); // 11. Calls the line generator 
 
-            svg.append("text")
-                .text(ttles[i])
-                .style("fill", "white")
-                .attr("transform", "translate(10, -10)")
+            if (i > 2)
+            {
+                svg.append("text")
+                    .text(ttles[i])
+                    .style("fill", "white")
+                    .attr("transform", "translate(10, 20)")
+            }
+            else {
+                svg.append("text")
+                    .text(ttles[i])
+                    .style("fill", "white")
+                    .attr("transform", "translate(10, -10)")
+            }
 
             var color = d3.scaleLinear().range(colorranges[i]).domain([1, 2, 3, 4, 5]);
 

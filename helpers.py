@@ -20,7 +20,33 @@ def createGif(outputDir, filename):
                    duration=500,
                    save_all=True,
                    interlace=False,
-                   append_images=images[1:])
+                   append_images=images[1:],
+                   loop=10)
+
+def createGif_slices(outputDir, filename):
+    """
+    Returns a GIF from .png files in a given directory for sliced images
+    """
+    print("Creating GIF")
+    images = os.listdir(outputDir)
+    if ".DS_Store" in images:
+        images.remove(".DS_Store")
+        
+    total = []
+    for i in images:
+        total.append(int(i.replace('.0.png', "")))
+    images = total
+    images.sort()
+    images = [Image.open(outputDir + '/' + str(i) + '.0.png').convert('RGBA').quantize()
+              for i in images]
+
+    images[0].save(filename + '.gif',
+                   optimize=False,
+                   duration=50,
+                   save_all=True,
+                   interlace=False,
+                   append_images=images[1:],
+                   loop=10)
 
 
 def createCSV(outputDir, outputFile, output_type):
