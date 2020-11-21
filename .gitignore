@@ -1,3 +1,10 @@
 *.vti
 *.DS_Store
 *.p
+
+*/prs_images/*
+*/tev_images/*
+/tev_images/*
+/prs_images/*
+cvlibd/server/data/volume-render/prs_images/*
+cvlibd/server/data/volume-render/tev_images/*

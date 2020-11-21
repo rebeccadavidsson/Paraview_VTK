@@ -47,7 +47,6 @@
 
 	#outputs {
 		margin-left: 375px;
-		margin-top: -100px;
 	}
 
 </style>
@@ -58,8 +57,9 @@
 
 		<div id="selections">
 			<select id="databaseSelect" onchange="loadCurrentDb()">
-				<option value="cvlibd/server/data/volume-render/parameters.json">Volume Render: Temperature, Astroid, Water</option>
 				<option value="cvlibd/server/data/volume-render/parameters_prs.json">Volume Render: Pressure</option>
+				<option value="cvlibd/server/data/volume-render/parameters.json">Volume Render: Temperature, Astroid, Water</option>
+		
 			</select>
 			<br>
 			<select id="displaySelect" onchange="activateCurrentDisplay()"></select>
@@ -114,6 +114,16 @@
 	//and call doneLoading when it has finished loading
 	function loadCurrentDb() {
 		currentDb = new CVLIBD.Database(databaseSelect.value, doneLoading);
+
+		var content = document.getElementById("outputs");
+		if (databaseSelect.value == "cvlibd/server/data/volume-render/parameters.json") {
+			content.setAttribute("class", "normal_content")
+		}
+		else {
+			content.setAttribute("class", "prs_content");
+		}
+
+
 	}
 
 	//Add SuperLoader and SuperBuilder to database, populate 

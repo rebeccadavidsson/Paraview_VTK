@@ -201,6 +201,7 @@ function imageZoom(imgID, resultID) {
 			self.query = self.source.data.filter(function(d) {
 				return d[key] == val;
 			});
+			
 		};
 		updateQuery();
 	};
@@ -214,8 +215,9 @@ function imageZoom(imgID, resultID) {
 		//Determine phi and theta values
 		var pKey = this.info.arguments.phi_theta[0],
 			tKey = this.info.arguments.phi_theta[1];
+
 		var pVals = SUPERBUILDER.Utils.getUniqueNumericValues(
-			this.source.data.map(function(d) {return d[pKey];})
+			this.source.data.map(function(d) { return d[pKey];})
 		);
 		var tVals = SUPERBUILDER.Utils.getUniqueNumericValues(
 			this.source.data.map(function(d) {return d[tKey];})
@@ -255,6 +257,7 @@ function imageZoom(imgID, resultID) {
 				if (Math.abs(dxTotal) > graticule.squareSize/pVals.length) {
 					pIndex = dxTotal > 0 ? Math.min(pVals.length-1,pIndex+1) :
 											Math.max(0,pIndex-1);
+					console.log(pIndex, "indexx");
 					startX = d3.event.x;
 					updateQuery();
 					self.update();
@@ -264,6 +267,7 @@ function imageZoom(imgID, resultID) {
 					tIndex = dyTotal > 0 ? Math.min(tVals.length-1,tIndex+1) :
 											Math.max(0,tIndex-1);
 					startY = d3.event.y;
+					console.log(pIndex, "indexy");
 					updateQuery();
 					self.update();
 				}
@@ -279,6 +283,7 @@ function imageZoom(imgID, resultID) {
 			self.query = self.source.data.filter(function(d) {
 				return (d[pKey] == phi && d[tKey] == theta);
 			});
+		
 		}
 		updateQuery();
 	}

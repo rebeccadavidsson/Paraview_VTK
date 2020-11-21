@@ -218,7 +218,6 @@
 			output.query = intersection;
 
 			updateLine(intersection[0].Value - 1);
-
 			output.update();
 		}
 	}
@@ -373,6 +372,8 @@
 			for (var i in this.updateListeners)
 				this.updateListeners[i].call(this);
 	};
+
+	
 
 	/*****************************************
 	 * UTIL FUNCTIONS

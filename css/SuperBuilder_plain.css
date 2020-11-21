@@ -42,8 +42,11 @@ body {
 	padding: 3px;
 	position: relative;
 }
-.SUPERBUILDER_Content img {
-	margin-top: -10px;
+.normal_content {
+	margin-top: -100px;
+}
+.prs_content {
+	margin-top: -200px;
 }
 
 .SUPERBUILDER_Content .graticuleWrapper {

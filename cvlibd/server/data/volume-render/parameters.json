@@ -24,21 +24,21 @@
                         "units": ""
                     }
                 },
-                "Rotation": {
+                "phi": {
                     "type": "scalar",
-                    "label": "Timestep",
+                    "label": "phi",
                     "io": "input",
                     "arguments": {
-                        "value": "Rotation",
+                        "value": "phi",
                         "units": ""
                     }
                 },
-                "xValue": {
+                "theta": {
                     "type": "scalar",
-                    "label": "Timestep",
+                    "label": "theta",
                     "io": "input",
                     "arguments": {
-                        "value": "xValue",
+                        "value": "theta",
                         "units": ""
                     }
                 },
