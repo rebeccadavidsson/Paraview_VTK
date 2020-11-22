@@ -486,11 +486,11 @@ def createImages(directory, outputDir, scalars, opacities, interactiveWindow):
 
 if __name__ == '__main__':
 
-    scalars = ['rho', 'prs']
-    opacities = [0.8, 0.5]
-    createImage(stored_folder, prs_outputDir, "pv_insitu_300x300x300_22010.vti",
-                scalars, opacities, interactiveWindow=True)
-    exit()
+    # scalars = ['rho', 'prs']
+    # opacities = [0.8, 0.5]
+    # createImage(stored_folder, prs_outputDir, "pv_insitu_300x300x300_22010.vti",
+    #             scalars, opacities, interactiveWindow=True)
+    # exit()
     # scalars = ['rho', 'prs']
     # opacities = [0.8, 0.5]
     # createImages(stored_folder, prs_outputDir, scalars,

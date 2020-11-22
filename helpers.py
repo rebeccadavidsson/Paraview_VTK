@@ -128,9 +128,12 @@ def getInfo(directory):
             reader.SetFileName(directory + "/" + filename)
             reader.Update()
             for scalar_value, list_name in zip(scalar_values, combined):
-                reader.GetOutput().GetPointData().SetActiveAttribute(scalar_value, 0)
-                dary = VN.vtk_to_numpy(
-                    reader.GetOutput().GetPointData().GetScalars(scalar_value))
+                try:
+                    reader.GetOutput().GetPointData().SetActiveAttribute(scalar_value, 0)
+                    dary = VN.vtk_to_numpy(
+                        reader.GetOutput().GetPointData().GetScalars(scalar_value))
+                except:
+                    list_name.append("")
                 # dMax = np.amax(dary)
                 # dMin = np.amin(dary)
                 list_name.append(np.max(dary))
@@ -139,7 +142,7 @@ def getInfo(directory):
     for scalar_value, list_name in zip(scalar_values, combined):
         indexes = list(range(1, len(list_name) + 1))
         f = open("cvlibd/server/data/volume-render/" +
-                 scalar_value + ".csv", 'w')
+                 scalar_value + "_max.csv", 'w')
 
         with f:
             writer = csv.writer(f)

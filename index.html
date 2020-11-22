@@ -26,7 +26,7 @@
 </head>
 <style>
 	#sidebar {
-		position: fixed;
+		position: relative;
 		top: 0px;
 		bottom: 0px;
 		left: 0px;
@@ -52,34 +52,44 @@
 </style>
 
 <body>
-	<div id="gradient"></div>
-	<div id="sidebar">
+	<div class="top-wrapper">
+		<div id="gradient"></div>
+		<div id="sidebar">
 
-		<div id="selections">
-			<select id="databaseSelect" onchange="loadCurrentDb()">
-				<option value="cvlibd/server/data/volume-render/parameters_prs.json">Volume Render: Pressure</option>
-				<option value="cvlibd/server/data/volume-render/parameters.json">Volume Render: Temperature, Astroid, Water</option>
-		
-			</select>
-			<br>
-			<select id="displaySelect" onchange="activateCurrentDisplay()"></select>
+			<div id="selections">
+				<select id="databaseSelect" onchange="loadCurrentDb()">
+					<option value="cvlibd/server/data/volume-render/parameters_prs.json">Volume: Pressure</option>
+					<option value="cvlibd/server/data/volume-render/parameters.json">Volume: Temperature, Astroid, Water</option>
+			
+				</select>
+				<br>
+				<select id="displaySelect" onchange="activateCurrentDisplay()"></select>
+			</div>
+			<div id="inputs"></div>
+			<div id="input_names">
+				<span>Timestep</span>
+				<span>Y Rotation</span>
+				<span>X Rotation</span>
+			</div>
 		</div>
-		<div id="inputs"></div>
+		<div id="outputs"></div>
+		<div id="legends"></div>
 	</div>
-	<div id="outputs"></div>
-	<div id="legends"></div>
+
 	<div class="plots-wrapper">
 		<h3>Temperature, asteroid volume and water pressure over time.</h3>
+		<div id="plots2">
+			<div id="tev_max"></div>
+			<div id="v03_max"></div>
+			<div id="prs_max"></div>
+			<div id="rho_max"></div>
+		</div>
 		<div id="plots">
 			<div id="tev"></div>
 			<div id="v03"></div>
 			<div id="prs"></div>
 		</div>
-		<div id="plots2">
-			<div id="tev_max"></div>
-			<div id="v03_max"></div>
-			<div id="prs_max"></div>
-		</div>
+	
 	</div>
 	<div class="heatplot-container"> 
 		<div class="heatplot-wrapper">

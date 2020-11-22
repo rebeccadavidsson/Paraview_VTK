@@ -1,7 +1,7 @@
 // 2. Use the margin convention practice 
 var margin = { top: 50, right: 50, bottom: 50, left: 50 }
     , width = window.innerWidth/3 - margin.left - margin.right // Use the window's width 
-    , height = window.innerHeight/3 - margin.top - margin.bottom; // Use the window's height
+    , height = window.innerHeight/3.5 - margin.top - margin.bottom; // Use the window's height
 
 
 var color_tev = ['#993404', '#D95F0E', '#FE9929', '#FEE391', '#FFFFD4'];
@@ -10,7 +10,9 @@ var color_v03 = ['rgb(0, 204, 102)', '#2d9f13', '#06763b' ,'pink','rgb(92,5,88)'
 
 // var color_prs = ['#ffffcc', '#a1dab4', '#41b6c4', '#2c7fb8', '#253494'];
 
-var color_prs = ["#ca0020", "#f4a582", "#f7f7f7", "#92c5de", "#0571b0"];
+var color_prs = ["rgb(3,4, 94)", "rgb(0, 119, 182)", "rgb(0, 180 , 216)", "rgb(144, 224, 239)", "rgb(202, 240, 248)"]
+
+// var color_prs = ["#ca0020", "#f4a582", "#f7f7f7", "#92c5de", "#0571b0"];
 
 
 var colorranges = [color_tev, color_v03, color_prs, color_tev, color_v03, color_prs];
@@ -18,6 +20,8 @@ var csvs = ["tev_max", "v03_max", "prs_max", "tev", "v03", "prs"]
 var names = ["tev", "v03", "prs", "tev", "v03", "prs"]
 var ttles = ['Max Temperature (eV)', "Max Asteroid volume", "Max Pressure (µbar)", 
             'Mean Temperature (eV)', "Asteroid mean volume", "Mean Pressure (µbar)"]
+var title = ['Temperature (eV)', "Asteroid volume", "Pressure (µbar)"];
+
 
 var n = 36;
 var xScale = d3.scaleLinear()
@@ -35,17 +39,25 @@ for (let i = 0; i < csvs.length; i++) {
                 .domain([Math.min.apply(Math, dataset.map(function (o) { return o[names[i]] - margin_bottom; })),
                     Math.max.apply(Math, dataset.map(function (o) { return o[names[i]]; }))]) // input 
                 .range([height, 0]); // output 
+            var logScale = d3.scaleLog()
+                .domain([Math.min.apply(Math, dataset.map(function (o) { return o[names[i]] - margin_bottom; })),
+                Math.max.apply(Math, dataset.map(function (o) { return o[names[i]]; }))]) // input 
+                .range([height, 0]); // output 
 
 
             var line = d3.line()
                 .x(function (d, i) { return xScale(i); }) // set the x values for the line generator
                 .y(function (d) { return yScale(d[names[i]]); }) // set the y values for the line generator 
                 .curve(d3.curveBasis) // apply smoothing to the line
+            var logline = d3.line()
+                .x(function (d, i) { return xScale(i); }) // set the x values for the line generator
+                .y(function (d) { return logScale(d[names[i]]); }) // set the y values for the line generator 
+                .curve(d3.curveBasis) // apply smoothing to the line
 
             // 1. Add the SVG to the page and employ #2
             var svg = d3.select("#" + csvs[i]).append("svg")
                 .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
+                .attr("height", height + margin.top + margin.bottom + 10)
                 .append("g")
                 .attr("class", "svg")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -54,25 +66,43 @@ for (let i = 0; i < csvs.length; i++) {
             svg.append("g")
                 .attr("class", "x axis")
                 .attr("transform", "translate(0," + height + ")")
-                .call(d3.axisBottom(xScale)); // Create an axis component with d3.axisBottom
+                .call(d3.axisBottom(xScale).ticks(3)); // Create an axis component with d3.axisBottom
 
+            if (names[i] != "prs") {
             // 4. Call the y axis in a group tag
             svg.append("g")
                 .attr("class", "y axis")
-                .call(d3.axisLeft(yScale)); // Create an axis component with d3.axisLeft
+                .call(d3.axisLeft(yScale).tickFormat(function (d) {
+                    if (i > 2)
+                    {  return d3.format(".2f")(d * 100);}
+                    else { return d3.format(".1f")(d/1); }
+                })); // Create an axis component with d3.axisLeft
 
-            // 9. Append the path, bind the data, and call the line generator 
-            svg.append("path")
-                .data(dataset) 
-                .attr("class", "line") // Assign a class for styling 
-                .attr("d", line); // 11. Calls the line generator 
+                // 9. Append the path, bind the data, and call the line generator 
+                svg.append("path")
+                    .data(dataset)
+                    .attr("class", "line") // Assign a class for styling 
+                    .attr("d", line); // 11. Calls the line generator 
+            }
+            else {
+                svg.append("g")
+                    .attr("class", "y axis")
+                    .call(d3.axisLeft(logScale).ticks(6)); // Create an axis component with d3.axisLeft
+
+                // 9. Append the path, bind the data, and call the line generator 
+                svg.append("path")
+                    .data(dataset)
+                    .attr("class", "line") // Assign a class for styling 
+                    .attr("d", logline); // 11. Calls the line generator 
+            }       
+            
 
             if (i > 2)
             {
                 svg.append("text")
                     .text(ttles[i])
                     .style("fill", "white")
-                    .attr("transform", "translate(10, 20)")
+                    .attr("transform", "translate(10, -10)")
             }
             else {
                 svg.append("text")
@@ -80,6 +110,7 @@ for (let i = 0; i < csvs.length; i++) {
                     .style("fill", "white")
                     .attr("transform", "translate(10, -10)")
             }
+        
 
             var color = d3.scaleLinear().range(colorranges[i]).domain([1, 2, 3, 4, 5]);
 
@@ -113,12 +144,21 @@ for (let i = 0; i < csvs.length; i++) {
             linearGradient.append("stop")
                 .attr("offset", "100%")
                 .attr("stop-color", color(5));
-    
-            svg.append("path")
-                .attr("d", line(dataset))
-                .attr("stroke-width", 4)
-                .attr("stroke", "url(#linear-gradient" + i + ")")
-                .attr("fill", "none");
+
+            if (names[i] == "prs") {
+                svg.append("path")
+                    .attr("d", logline(dataset))
+                    .attr("stroke-width", 4)
+                    .attr("stroke", "url(#linear-gradient" + i + ")")
+                    .attr("fill", "none");
+            }
+            else {
+                svg.append("path")
+                    .attr("d", line(dataset))
+                    .attr("stroke-width", 4)
+                    .attr("stroke", "url(#linear-gradient" + i + ")")
+                    .attr("fill", "none");
+            }
             
             svg.append("line")
                 .attr("x1", 0)
@@ -133,8 +173,9 @@ for (let i = 0; i < csvs.length; i++) {
             if (i < 3) {
                 var key = d3.select("#legends")
                     .append("svg")
-                    .attr("width", 200)
-                    .attr("height", 80);
+                    .attr("width", 280)
+                    .attr("transform", "translate(-25, 0)")
+                    .attr("height", 100);
                     
                 var legend = key.append("defs")
                     .append("linearGradient")
@@ -144,11 +185,11 @@ for (let i = 0; i < csvs.length; i++) {
                 legend.append("stop")
                     .attr("offset", "0%")
                     .attr("stop-opacity", 1)
-                    .attr("stop-color", color(1));
+                    .attr("stop-color", color(5));
 
                 legend.append("stop")
                     .attr("offset", "25%")
-                    .attr("stop-color", color(2));
+                    .attr("stop-color", color(4));
 
                 legend.append("stop")
                     .attr("offset", "50%")
@@ -156,11 +197,11 @@ for (let i = 0; i < csvs.length; i++) {
 
                 legend.append("stop")
                     .attr("offset", "75%")
-                    .attr("stop-color", color(4));
+                    .attr("stop-color", color(2));
 
                 legend.append("stop")
                     .attr("offset", "100%")
-                    .attr("stop-color", color(5));
+                    .attr("stop-color", color(1));
 
                 key.append("rect")
                     .attr("width", "100%")
@@ -169,13 +210,52 @@ for (let i = 0; i < csvs.length; i++) {
                     .attr("transform", "translate(0, 25)");
 
                 key.append("g")
+                    .attr("transform", "translate(0,52)")
+                    .call(x)
+                    .append("text")
+                    .attr("y", 0)
+                    .attr("dy", ".71em")
+                    .style("fill", "white")
+                    .text(getNotation("min"));
+                key.append("g")
+                    .attr("transform", "translate(275,52)")
+                    .call(x)
+                    .append("text")
+                    .attr("y", 0)
+                    .attr("dy", ".71em")
+                    .style("fill", "white")
+                    .style("text-anchor", "end")
+                    .text(getNotation("max"));
+
+                key.append("g")
                     .attr("transform", "translate(5,0)")
                     .call(x)
                     .append("text")
                     .attr("y", 0)
                     .attr("dy", ".71em")
                     .style("fill", "white")
-                    .text(ttles[i]);
+                    .text(title[i]);
+            }
+
+            function getNotation(minmax) {
+                if (names[i] == "prs") {
+                    if (minmax == "min") {
+                        return Math.round(Math.min.apply(Math, dataset.map(function (o) { return o[names[i]]; }))
+                            , 3).toExponential(2)
+                    }
+                    else {
+                        return Math.round(Math.max.apply(Math, dataset.map(function (o) { return o[names[i]]; }))
+                            , 3).toExponential(2)
+                    }
+                }
+                else {
+                    if (minmax == "max") {
+                        return Math.round(Math.max.apply(Math, dataset.map(function (o) { return o[names[i]]; })) * 1000) / 1000;
+                    }
+                    else {
+                        return Math.round(Math.min.apply(Math, dataset.map(function (o) { return o[names[i]]; })) * 1000) / 1000;
+                    }   
+                }
             }
 
     });

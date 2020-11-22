@@ -1,21 +1,32 @@
 * {box-sizing: border-box;}
 
+.top-wrapper {
+    position: relative;
+}
+
+.plots-wrapper {
+    margin-top: -50px;
+    position: relative;
+}
+.plots-wrapper h3 {
+    position: relative;
+    left: 50px;
+    z-index: 10;
+    text-align: left;
+    margin-bottom: 0;
+}
+
+
 #plots, #plots2 {
     width: 100%;
-    position: absolute;
-    padding: 50px;
+    /* padding: 50px; */
     padding-left: 10px;
-    background-color: rgb(20, 20, 30);
+    /* background-color: rgb(20, 20, 30); */
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    height: calc(100% - 480px);
+    /* height: calc(100% - 480px); */
 }
-#plots {
-    top: 780px;
-}
-#plots2 {
-    top: 480px;
-}
+
 
 
 .axis path, .axis text{
@@ -27,10 +38,7 @@
     display: none;
 }
 
-#legends {
-    position: absolute;
-    top: 200px;
-}
+
 #legends > svg {
     position: relative;
     display: block;
@@ -38,20 +46,13 @@
 }
 
 #legends {
-  position: fixed; /* Make it stick/fixed */
+  position: absolute; /* Make it stick/fixed */
   top: 0; /* Stay on top */
   width: 100%; /* Full width */
   /* transition-delay: 0.3s; */
   top: 200px;
 }
 
-
-.plots-wrapper h3 {
-    position: absolute;
-    top: 476px;
-    left: 50px;
-    z-index: 10;
-}
 
 .dot {
     fill: silver;
@@ -65,7 +66,6 @@
 
 .heatplot-container {
     position: relative;
-    margin-top: 600px;
     height: 800px;
     width: 100%;
 }

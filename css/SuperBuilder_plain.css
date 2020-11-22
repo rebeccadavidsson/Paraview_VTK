@@ -26,6 +26,19 @@ body {
 	color: white;
 }
 
+#input_names {
+        float: right;
+    white-space: break-spaces;
+    width: 36%;
+    margin-top: -19px;
+    line-height: 19px;
+    text-align: right;
+}
+#inputs {
+	float: left;
+    width: 49%;
+	margin-left: 25px;
+}
 
 /* .cvlibD_structure[io="input"] .SUPERBUILDER_Header {
 	background: darkblue;
@@ -43,10 +56,13 @@ body {
 	position: relative;
 }
 .normal_content {
-	margin-top: -100px;
+	margin-top: -310px;
+}
+.normal_content img {
+	height: 88%;
 }
 .prs_content {
-	margin-top: -200px;
+	margin-top: -380px;
 }
 
 .SUPERBUILDER_Content .graticuleWrapper {
@@ -145,10 +161,10 @@ body {
 .controlWrapper input::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 15px;
+  width: 7px;
   height: 15px;
-  background: gold;
-  border-radius: 50%;
+  background: white;
+  border-radius: 10%;
   cursor: pointer;
 }
 
