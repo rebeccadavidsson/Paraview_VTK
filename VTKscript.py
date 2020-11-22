@@ -6,7 +6,7 @@ from tqdm import tqdm
 from PIL import Image
 import csv
 import pickle
-from helpers import createGif, createCSV, getInfo, createGif_slices
+from helpers import createGif, createCSV, getInfo, createGif_slices, calcSplash
 
 # External disk
 # os.chdir('/Volumes/BLACKBOX/Paraview_VTK')
@@ -511,8 +511,8 @@ if __name__ == '__main__':
     # exit()
 
     # Convert data to csv for plotting
-    # getInfo('data')
-    # exit()
+    getInfo('data')
+    exit()
     
     # Test image with one file
     # createPlaneImage('data', outputDir, "pv_insitu_300x300x300_22010.vti",

@@ -10,16 +10,18 @@ var color_v03 = ['rgb(0, 204, 102)', '#2d9f13', '#06763b' ,'pink','rgb(92,5,88)'
 
 // var color_prs = ['#ffffcc', '#a1dab4', '#41b6c4', '#2c7fb8', '#253494'];
 
-var color_prs = ["rgb(3,4, 94)", "rgb(0, 119, 182)", "rgb(0, 180 , 216)", "rgb(144, 224, 239)", "rgb(202, 240, 248)"]
 
+var color_prs = ["rgb(3,4, 94)", "rgb(0, 119, 182)", "rgb(0, 180 , 216)", "rgb(144, 224, 239)", "rgb(202, 240, 248)"]
+var color = "grey"
+var v02_color = [color, color, color, color, color]
 // var color_prs = ["#ca0020", "#f4a582", "#f7f7f7", "#92c5de", "#0571b0"];
 
 
-var colorranges = [color_tev, color_v03, color_prs, color_tev, color_v03, color_prs];
-var csvs = ["tev_max", "v03_max", "prs_max", "tev", "v03", "prs"]
-var names = ["tev", "v03", "prs", "tev", "v03", "prs"]
-var ttles = ['Max Temperature (eV)', "Max Asteroid volume", "Max Pressure (µbar)", 
-            'Mean Temperature (eV)', "Asteroid mean volume", "Mean Pressure (µbar)"]
+var colorranges = [color_tev, color_v03, color_prs, color_tev, color_v03, v02_color];
+var csvs = ["tev", "v03", "prs_max", "tev_max", "v03_max", "v02_splash"]
+var names = ["tev", "v03", "prs", "tev", "v03", "x"]
+var ttles = ['Mean Temperature (eV)', "Mean Asteroid volume", "Max Pressure (µbar)",  
+    'Max Temperature (eV)', "Max Asteroid volume", "Max water splash height"]
 var title = ['Temperature (eV)', "Asteroid volume", "Pressure (µbar)"];
 
 
@@ -34,13 +36,12 @@ for (let i = 0; i < csvs.length; i++) {
     d3.csv("cvlibd/server/data/volume-render/" + csvs[i] + ".csv",
         function(dataset) {
             
-            var margin_bottom = 0;
             var yScale = d3.scaleLinear()
-                .domain([Math.min.apply(Math, dataset.map(function (o) { return o[names[i]] - margin_bottom; })),
+                .domain([Math.min.apply(Math, dataset.map(function (o) { return o[names[i]]; })),
                     Math.max.apply(Math, dataset.map(function (o) { return o[names[i]]; }))]) // input 
                 .range([height, 0]); // output 
             var logScale = d3.scaleLog()
-                .domain([Math.min.apply(Math, dataset.map(function (o) { return o[names[i]] - margin_bottom; })),
+                .domain([Math.min.apply(Math, dataset.map(function (o) { return o[names[i]] ; })),
                 Math.max.apply(Math, dataset.map(function (o) { return o[names[i]]; }))]) // input 
                 .range([height, 0]); // output 
 
@@ -73,9 +74,9 @@ for (let i = 0; i < csvs.length; i++) {
             svg.append("g")
                 .attr("class", "y axis")
                 .call(d3.axisLeft(yScale).tickFormat(function (d) {
-                    if (i > 2)
-                    {  return d3.format(".2f")(d * 100);}
-                    else { return d3.format(".1f")(d/1); }
+                    if (i > 2 || i > 5)
+                    {  return d3.format(".2f")(d / 1);}
+                    else { return d3.format(".1f")(d* 100); }
                 })); // Create an axis component with d3.axisLeft
 
                 // 9. Append the path, bind the data, and call the line generator 
@@ -96,20 +97,11 @@ for (let i = 0; i < csvs.length; i++) {
                     .attr("d", logline); // 11. Calls the line generator 
             }       
             
+            svg.append("text")
+                .text(ttles[i])
+                .style("fill", "white")
+                .attr("transform", "translate(10, -10)")
 
-            if (i > 2)
-            {
-                svg.append("text")
-                    .text(ttles[i])
-                    .style("fill", "white")
-                    .attr("transform", "translate(10, -10)")
-            }
-            else {
-                svg.append("text")
-                    .text(ttles[i])
-                    .style("fill", "white")
-                    .attr("transform", "translate(10, -10)")
-            }
         
 
             var color = d3.scaleLinear().range(colorranges[i]).domain([1, 2, 3, 4, 5]);

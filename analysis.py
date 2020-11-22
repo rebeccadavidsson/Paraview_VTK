@@ -1,3 +1,5 @@
+
+from numpy import unravel_index
 import numpy as np
 import pickle
 import matplotlib.pylab as plt
@@ -12,7 +14,7 @@ import os
 # reader.SetFileName('data/pv_insitu_300x300x300_22010.vti')
 # reader.Update()
 # dary = VN.vtk_to_numpy(
-#     reader.GetOutput().GetPointData().GetScalars('tev'))
+#     reader.GetOutput().GetPointData().GetScalars('v02'))
 
 # pickle.dump(dary, open("save.p", "wb"))
 
@@ -22,6 +24,11 @@ f = pickle.load(open("save.p", "rb"))
 f = f.reshape(300, 300, 300)
 f = np.swapaxes(f, 0, 1)
 f = np.flipud(f)
+
+
+print(unravel_index(f.argmax(), f.shape)[1])
+
+exit()
 
 def createGif(outputDir):
     """
@@ -56,6 +63,6 @@ def makeImages():
         heatmap2d(test_array, i)
 
 
-# makeImages()
+makeImages()
 createGif('heatmap')
 

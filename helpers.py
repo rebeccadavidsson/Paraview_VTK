@@ -1,3 +1,4 @@
+from numpy import unravel_index
 import os
 import vtk
 import numpy as np
@@ -118,11 +119,15 @@ def createCSV(outputDir, outputFile, num_yValues, num_xValues, output_type):
 
 
 def getInfo(directory):
-    temperatures, v02, v03, pressures = [], [], [], []
-    combined = [temperatures, v02, v03, pressures]
-    scalar_values = ["tev", "v03", "prs", "rho"]
+    temperatures, v02, v03, pressures, rho = [], [], [], [], []
+    temperatures_max, v02_max, v03_max, pressures_max, rho_max = [], [], [], [], []
+    combined = [temperatures, v02, v03, pressures, rho, 
+                temperatures_max, v02_max, v03_max, pressures_max, rho_max]
+    scalar_values = ["tev", "v03", "prs", "rho", "tev", "v03", "prs", "rho"]
+    filenames = os.listdir(directory)
+    filenames.sort()
 
-    for filename in os.listdir(directory):
+    for filename in filenames:
         if filename.endswith(".vti"):
             reader = vtk.vtkXMLImageDataReader()
             reader.SetFileName(directory + "/" + filename)
@@ -134,10 +139,9 @@ def getInfo(directory):
                         reader.GetOutput().GetPointData().GetScalars(scalar_value))
                 except:
                     list_name.append("")
-                # dMax = np.amax(dary)
-                # dMin = np.amin(dary)
+
                 list_name.append(np.max(dary))
-                print(np.mean(dary))
+
 
     for scalar_value, list_name in zip(scalar_values, combined):
         indexes = list(range(1, len(list_name) + 1))
@@ -151,3 +155,38 @@ def getInfo(directory):
                 writer.writerow(row)
 
     return True
+
+
+def calcSplash(directory): 
+    v02 = []
+    scalar_value = "v02"
+    filenames = os.listdir(directory)
+    filenames.sort()
+
+    for filename in filenames:
+        if filename.endswith(".vti"):
+            reader = vtk.vtkXMLImageDataReader()
+            reader.SetFileName(directory + "/" + filename)
+            reader.Update()
+
+            reader.GetOutput().GetPointData().SetActiveAttribute(scalar_value, 0)
+            dary = VN.vtk_to_numpy(
+                reader.GetOutput().GetPointData().GetScalars(scalar_value))
+
+            dary = dary.reshape(300, 300, 300)
+            dary = np.swapaxes(dary, 0, 1)
+            dary = np.flipud(dary)
+            v02.append(list(unravel_index(dary.argmax(), dary.shape)))
+
+    indexes = list(range(1, len(v02) + 1))
+    f = open("cvlibd/server/data/volume-render/" +
+             scalar_value + "_splash.csv", 'w')
+
+    with f:
+        writer = csv.writer(f)
+        writer.writerow(["timestep", "y", "x", "z"])
+        for row, line in zip(indexes, v02):
+            writer.writerow([row, line[0], line[1], line[2]])
+
+    return True
+
