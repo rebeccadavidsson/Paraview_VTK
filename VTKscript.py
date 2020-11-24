@@ -26,8 +26,8 @@ method = 'volume'
 outputDir = "cvlibd/server/data/volume-render/tev_images"
 prs_outputDir = "cvlibd/server/data/volume-render/prs_images"
 
-num_yValues = 4
-num_xValues = 6
+num_yValues = 1
+num_xValues = 1
 
 # if not os.path.isdir(outputDir):
 #     os.makedirs(outputDir)
@@ -56,7 +56,7 @@ def createImage(directory, outputDir, filename, scalars, opacities,
     aRenderer.SetBackground(15/255, 15/255, 25/255)
 
     # Window size of final png file
-    renWin.SetSize(850, 750)
+    renWin.SetSize(920, 750)
 
     for scalar_value, opacity in zip(scalars, opacities):
 
@@ -99,7 +99,7 @@ def createImage(directory, outputDir, filename, scalars, opacities,
         # Create transfer mapping scalar value to opacity.
         opacityTransferFunction = vtk.vtkPiecewiseFunction()
         opacityTransferFunction.AddPoint(dMin, 0.0)
-        opacityTransferFunction.AddPoint(dMax, opacity)
+        opacityTransferFunction.AddPoint(dMax, opacity / 2)
         volumeGradientOpacity = vtk.vtkPiecewiseFunction()
         volumeGradientOpacity.AddPoint(dMin, 0)
 
@@ -130,11 +130,11 @@ def createImage(directory, outputDir, filename, scalars, opacities,
             colorTransferFunction.AddRGBPoint((dMin + dMax)/3, 0, 180/255, 216/255)
             colorTransferFunction.AddRGBPoint((dMin + dMax)/4, 144/255, 224/255, 239/255)
             colorTransferFunction.AddRGBPoint((dMin + dMax)/5, 202/255, 240/255, 248/255)
-            # colorTransferFunction.AddRGBPoint((dMin + dMax)/3, 33/255, 102/255, 172/255)
+            colorTransferFunction.AddRGBPoint((dMin + dMax)/3, 33/255, 102/255, 172/255)
         elif scalar_value == "rho":
-            volumeGradientOpacity.AddPoint(dMax, 1)
-            colorTransferFunction.AddRGBPoint((dMin / 6),  237/255, 224/255, 212/255) # light brown to brown
-            colorTransferFunction.AddRGBPoint((dMax + dMin)/5,  230/255, 204/255, 178/255)
+            volumeGradientOpacity.AddPoint(dMax / 100, opacity)
+            # colorTransferFunction.AddRGBPoint((dMin / 6),  237/255, 224/255, 212/255) # light brown to brown
+            # colorTransferFunction.AddRGBPoint((dMax + dMin)/5,  230/255, 204/255, 178/255)
             colorTransferFunction.AddRGBPoint((dMax + dMin)/4, 221/255, 184/255, 146/255)
             colorTransferFunction.AddRGBPoint((dMax + dMin)/3, 176/255, 137/255, 104/255)
             colorTransferFunction.AddRGBPoint((dMax + dMin)/2, 127/255, 85/255, 57/255)
@@ -183,8 +183,8 @@ def createImage(directory, outputDir, filename, scalars, opacities,
         volume.SetProperty(volumeProperty)
         aRenderer.AddActor(volume)
     
-    camera_pos_y = np.linspace(-0.1, 0.3, num_yValues).tolist()
-    camera_pos_x = np.linspace(-0.5, 2.5, num_xValues).tolist()
+    camera_pos_y = np.linspace(0.4, 0.3, num_yValues).tolist()
+    camera_pos_x = np.linspace(-1, 2.5, num_xValues).tolist()
     i = 0
     for pos_y in camera_pos_y:
         for pos_x in camera_pos_x:
@@ -192,7 +192,8 @@ def createImage(directory, outputDir, filename, scalars, opacities,
             aCamera.SetViewUp(0, 0, 0)
             aCamera.SetPosition(pos_x, pos_y, 1)
             if "prs" in scalars:
-                aCamera.SetFocalPoint(0, 0, 0.3)
+                # aCamera.SetFocalPoint(0, 0, 0.3)
+                aCamera.SetFocalPoint(0.6, 0.2, 0)
             else:
                 aCamera.SetFocalPoint(0.6, 0.2, 0)
             aCamera.ComputeViewPlaneNormal()
@@ -202,7 +203,7 @@ def createImage(directory, outputDir, filename, scalars, opacities,
             aRenderer.ResetCamera()
 
             # Zooming in
-            aCamera.Dolly(1)
+            aCamera.Dolly(1.2)
 
             # Stand van camera
             aCamera.Elevation(5)
@@ -220,7 +221,7 @@ def createImage(directory, outputDir, filename, scalars, opacities,
                 w2if.Update()
 
                 if "prs" in scalars:
-                    outputFile = outputDir+"/" + str(filename.replace("pv_insitu_300x300x300_", "")) + "_" + str(i) + ".prs.png"
+                    outputFile = outputDir+"/" + str(filename.replace("pv_insitu_300x300x300_", "")) + "test" + str(i) + ".prs.png"
                 else:
                     outputFile = outputDir+"/" + str(filename.replace("pv_insitu_300x300x300_", ""))  + "_" + str(i) +  ".png"
 
@@ -338,7 +339,6 @@ def createPlaneImage(directory, outputDir, filename,
     colorTransferFunction.SetColorSpaceToDiverging()
     colorTransferFunction.SetHSVWrap(False)
 
-
     for x in x_locations:
         aRenderer = vtk.vtkRenderer()
         renWin = vtk.vtkRenderWindow()
@@ -349,7 +349,7 @@ def createPlaneImage(directory, outputDir, filename,
         aRenderer.SetBackground(225/255, 225/255, 225/255)
 
         # Window size of final png file
-        renWin.SetSize(750, 600)
+        renWin.SetSize(900, 700)
 
         volumeGradientOpacity.AddPoint(dMax/2, opacity)
         colorTransferFunction.AddRGBPoint(dMin, 255/255, 255/255, 212/255) # light yellow
@@ -486,11 +486,11 @@ def createImages(directory, outputDir, scalars, opacities, interactiveWindow):
 
 if __name__ == '__main__':
 
-    # scalars = ['rho', 'prs']
-    # opacities = [0.8, 0.5]
-    # createImage(stored_folder, prs_outputDir, "pv_insitu_300x300x300_22010.vti",
-    #             scalars, opacities, interactiveWindow=True)
-    # exit()
+    scalars = ['prs', 'rho']
+    opacities = [0.5, 0.1]
+    createImage(stored_folder, prs_outputDir, "pv_insitu_300x300x300_37669.vti",
+                scalars, opacities, interactiveWindow=False)
+    exit()
     # scalars = ['rho', 'prs']
     # opacities = [0.8, 0.5]
     # createImages(stored_folder, prs_outputDir, scalars,

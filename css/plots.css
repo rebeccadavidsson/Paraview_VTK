@@ -82,15 +82,18 @@
     padding: 35px;
     width: 100%;
     margin-bottom: 50px;
-    background-color: white;
-    -webkit-box-shadow: 5px 5px 16px 9px #000000; 
-    box-shadow: 5px 5px 16px 9px #000000;
+    background-color: #0f0f19;
     overflow: hidden;
 }
 
+video {
+    -webkit-box-shadow: 5px 5px 16px 9px #000000;
+    box-shadow: 5px 5px 16px 9px #000000;
+}
+
 .heatplot-wrapper h3 {
-    text-align: left;
-    color: #383838;
+    text-align: center;
+    color: #e4e4e4;
 }
 
 .splash {
@@ -100,7 +103,7 @@
     grid-template-columns: 1fr 1fr;
 }
 .splash img {
-    width: 90%;
+    width: 115%;
 }
 .grids {
     display: grid;
