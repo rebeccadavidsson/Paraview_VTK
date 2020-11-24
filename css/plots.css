@@ -38,6 +38,10 @@
     display: none;
 }
 
+.axislabel {
+    fill: grey;
+    font-size: 13px;
+}
 
 #legends > svg {
     position: relative;
@@ -76,7 +80,6 @@
     transform: translateX(-50%);
     position: absolute;
     padding: 35px;
-    height: 100%;
     width: 100%;
     margin-bottom: 50px;
     background-color: white;
@@ -90,6 +93,15 @@
     color: #383838;
 }
 
+.splash {
+    padding: 10px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+.splash img {
+    width: 90%;
+}
 .grids {
     display: grid;
     grid-template-columns: 1fr 1fr;

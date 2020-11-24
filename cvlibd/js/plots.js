@@ -21,13 +21,16 @@ var colorranges = [color_tev, color_v03, color_prs, color_tev, color_v03, v02_co
 var csvs = ["tev", "v03", "prs_max", "tev_max", "v03_max", "v02_splash"]
 var names = ["tev", "v03", "prs", "tev", "v03", "x"]
 var ttles = ['Mean Temperature (eV)', "Mean Asteroid volume", "Max Pressure (µbar)",  
-    'Max Temperature (eV)', "Max Asteroid volume", "Max water splash height"]
+    'Max Temperature (eV)', "Max Asteroid volume", "Max water splash height (m)"]
 var title = ['Temperature (eV)', "Asteroid volume", "Pressure (µbar)"];
+
+var seconds = [0.1141, 0.2286, 0.4566, 0.6817, 0.8948, 1.0487, 1.2244, 1.3306, 1.5159, 1.6898, 1.7954, 1.8741, 1.9021, 1.9749, 2.055, 2.201, 2.3341, 2.4095, 2.5659, 2.6103, 2.797, 2.8245, 2.9693, 3.0068, 3.3719, 3.5332, 3.6069, 3.7669, 3.9067, 4.1035, 4.4262, 4.6984, 4.8989, 4.9275, 4.9577, 4.9978]
 
 
 var n = 36;
 var xScale = d3.scaleLinear()
-    .domain([0, n - 1]) // input
+    .domain([Math.min.apply(Math, seconds.map(function (o) { return o })),
+    Math.max.apply(Math, seconds.map(function (o) { return o }))]) // input 
     .range([0, width]); // output
 
 for (let i = 0; i < csvs.length; i++) {
@@ -47,11 +50,11 @@ for (let i = 0; i < csvs.length; i++) {
 
 
             var line = d3.line()
-                .x(function (d, i) { return xScale(i); }) // set the x values for the line generator
+                .x(function (d, i) { return xScale(seconds[i]); }) // set the x values for the line generator
                 .y(function (d) { return yScale(d[names[i]]); }) // set the y values for the line generator 
                 .curve(d3.curveBasis) // apply smoothing to the line
             var logline = d3.line()
-                .x(function (d, i) { return xScale(i); }) // set the x values for the line generator
+                .x(function (d, i) { return xScale(seconds[i]); }) // set the x values for the line generator
                 .y(function (d) { return logScale(d[names[i]]); }) // set the y values for the line generator 
                 .curve(d3.curveBasis) // apply smoothing to the line
 
@@ -67,7 +70,13 @@ for (let i = 0; i < csvs.length; i++) {
             svg.append("g")
                 .attr("class", "x axis")
                 .attr("transform", "translate(0," + height + ")")
-                .call(d3.axisBottom(xScale).ticks(3)); // Create an axis component with d3.axisBottom
+                .call(d3.axisBottom(xScale).ticks(5)); // Create an axis component with d3.axisBottom
+           
+            svg.append("text")
+                .attr("transform", "translate(" + (width) + "," + (height + 35) + ")")
+                .text("Time (s)")
+                .attr("text-anchor", "end")
+                .attr("class", "axislabel")
 
             if (names[i] != "prs") {
             // 4. Call the y axis in a group tag
@@ -233,19 +242,19 @@ for (let i = 0; i < csvs.length; i++) {
                 if (names[i] == "prs") {
                     if (minmax == "min") {
                         return Math.round(Math.min.apply(Math, dataset.map(function (o) { return o[names[i]]; }))
-                            , 3).toExponential(2)
+                            , 3).toExponential(1)
                     }
                     else {
                         return Math.round(Math.max.apply(Math, dataset.map(function (o) { return o[names[i]]; }))
-                            , 3).toExponential(2)
+                            , 3).toExponential(1)
                     }
                 }
                 else {
                     if (minmax == "max") {
-                        return Math.round(Math.max.apply(Math, dataset.map(function (o) { return o[names[i]]; })) * 1000) / 1000;
+                        return Math.round(Math.max.apply(Math, dataset.map(function (o) { return o[names[i]]; })) * 1000) / 10;
                     }
                     else {
-                        return Math.round(Math.min.apply(Math, dataset.map(function (o) { return o[names[i]]; })) * 1000) / 1000;
+                        return Math.round(Math.min.apply(Math, dataset.map(function (o) { return o[names[i]]; })) * 1000) / 10;
                     }   
                 }
             }
@@ -255,9 +264,9 @@ for (let i = 0; i < csvs.length; i++) {
 
 function updateLine(select) {
     d3.selectAll(".timestep")
-        .attr("x1", xScale(select + 1))
+        .attr("x1", xScale(seconds[select]))
         .attr("y1", height )
-        .attr("x2", xScale(select + 1))
+        .attr("x2", xScale(seconds[select]))
         .attr("y2", 0)
         .attr("class", "timestep")
         .style("stroke-width", 3.5)
