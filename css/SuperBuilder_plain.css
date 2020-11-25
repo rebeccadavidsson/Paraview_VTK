@@ -40,6 +40,10 @@ body {
 	margin-left: 25px;
 }
 
+#image {
+	position: relative;
+	z-index: -1;
+}
 /* .cvlibD_structure[io="input"] .SUPERBUILDER_Header {
 	background: darkblue;
 } */
@@ -54,7 +58,9 @@ body {
 .SUPERBUILDER_Content {
 	padding: 3px;
 	position: relative;
+	/* z-index: -1; */
 }
+
 .normal_content {
 	margin-top: -310px;
 }
@@ -135,8 +141,8 @@ body {
 
 
 #gradient {
-	background: rgb(15, 15, 25);
-	background: linear-gradient(90deg, rgba(0,0,0,0.615983979040835) 0%,  rgba(15,15,25,0.9711038712359944) 100%);
+	/* background: rgb(15, 15, 25);
+	background: linear-gradient(90deg, rgba(0,0,0,0.615983979040835) 0%,  rgba(15,15,25,0.9711038712359944) 100%); */
 	position: absolute;
 	left: 0;
 	top: 0;
@@ -146,6 +152,10 @@ body {
 
 .controlWrapper {
 	width: 200px;
+}
+
+.controlWrapper:hover {
+	cursor: pointer;
 }
 
 .controlWrapper input {

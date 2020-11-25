@@ -24,10 +24,10 @@ method = 'volume'
 
 # Output folder of images
 outputDir = "cvlibd/server/data/volume-render/tev_images"
-prs_outputDir = "cvlibd/server/data/volume-render/prs_images"
+prs_outputDir = "cvlibd/server/data/volume-render/mov1"
 
 num_yValues = 1
-num_xValues = 1
+num_xValues = 50
 
 # if not os.path.isdir(outputDir):
 #     os.makedirs(outputDir)
@@ -107,7 +107,7 @@ def createImage(directory, outputDir, filename, scalars, opacities,
         colorTransferFunction = vtk.vtkColorTransferFunction()
         colorTransferFunction.SetColorSpaceToDiverging()
         # colorTransferFunction.SetHSVWrap(False)
-        if scalar_value == "tev":
+        if scalar_value == "v03":
             volumeGradientOpacity.AddPoint(dMax/2, opacity)
             colorTransferFunction.AddRGBPoint(dMin, 255/255, 255/255, 212/255) # light yellow
             colorTransferFunction.AddRGBPoint((dMax + dMin)/5, 254/255, 227/255, 145/255)
@@ -115,7 +115,7 @@ def createImage(directory, outputDir, filename, scalars, opacities,
             colorTransferFunction.AddRGBPoint((dMax + dMin)/3, 254/255, 153/255, 41/255)
             colorTransferFunction.AddRGBPoint((dMax + dMin)/2, 217/255, 95/255, 14/255)
             colorTransferFunction.AddRGBPoint((dMax + dMin), 163/255,62/255,4/255)
-        elif scalar_value == "v03":
+        elif scalar_value == "tev":
             colorTransferFunction.AddRGBPoint(dMax/3, 76/255, 0/255, 123/255) # Green
             colorTransferFunction.AddRGBPoint(dMin, 0, 184/255, 92/255)  # Purple
             volumeGradientOpacity.AddPoint(dMax/3, opacity)
@@ -184,7 +184,7 @@ def createImage(directory, outputDir, filename, scalars, opacities,
         aRenderer.AddActor(volume)
     
     camera_pos_y = np.linspace(0.4, 0.3, num_yValues).tolist()
-    camera_pos_x = np.linspace(-1, 2.5, num_xValues).tolist()
+    camera_pos_x = np.linspace(-3, 5, num_xValues).tolist()
     i = 0
     for pos_y in camera_pos_y:
         for pos_x in camera_pos_x:
@@ -221,9 +221,9 @@ def createImage(directory, outputDir, filename, scalars, opacities,
                 w2if.Update()
 
                 if "prs" in scalars:
-                    outputFile = outputDir+"/" + str(filename.replace("pv_insitu_300x300x300_", "")) + "test" + str(i) + ".prs.png"
+                    outputFile = outputDir+"/" + str(filename.replace("pv_insitu_300x300x300_", "")) + str(i) + ".prs.png"
                 else:
-                    outputFile = outputDir+"/" + str(filename.replace("pv_insitu_300x300x300_", ""))  + "_" + str(i) +  ".png"
+                    outputFile = outputDir+"/" + str(filename.replace("pv_insitu_300x300x300_", ""))  + "mov_" + str(i) +  ".png"
 
                 writer = vtk.vtkPNGWriter()
                 writer.SetFileName(outputFile)
@@ -486,11 +486,13 @@ def createImages(directory, outputDir, scalars, opacities, interactiveWindow):
 
 if __name__ == '__main__':
 
-    scalars = ['prs', 'rho']
-    opacities = [0.5, 0.1]
-    createImage(stored_folder, prs_outputDir, "pv_insitu_300x300x300_37669.vti",
-                scalars, opacities, interactiveWindow=False)
-    exit()
+    # scalars = ['prs', 'rho']
+    # opacities = [0.5, 0.1]
+    # scalars = ['v02', 'tev']
+    # opacities = [0.1, 0.1]
+    # createImage(stored_folder, prs_outputDir, "pv_insitu_300x300x300_33719.vti",
+    #             scalars, opacities, interactiveWindow=False)
+    # exit()
     # scalars = ['rho', 'prs']
     # opacities = [0.8, 0.5]
     # createImages(stored_folder, prs_outputDir, scalars,
@@ -504,15 +506,15 @@ if __name__ == '__main__':
     #           num_yValues, num_xValues, output_type="scalars")
     # exit()
 
-    # createGif(prs_outputDir, "GIFS/prs")
-    # exit()
+    createGif(prs_outputDir, "GIFS/mov1")
+    exit()
 
     # createGif_slices(outputDir, "GIFS/tev_slices")
     # exit()
 
     # Convert data to csv for plotting
-    getInfo('data')
-    exit()
+    # getInfo('data')
+    # exit()
     
     # Test image with one file
     # createPlaneImage('data', outputDir, "pv_insitu_300x300x300_22010.vti",

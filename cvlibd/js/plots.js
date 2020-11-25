@@ -264,9 +264,9 @@ for (let i = 0; i < csvs.length; i++) {
 
 function updateLine(select) {
     d3.selectAll(".timestep")
-        .attr("x1", xScale(seconds[select]))
+        .attr("x1", xScale(seconds[select + 1]))
         .attr("y1", height )
-        .attr("x2", xScale(seconds[select]))
+        .attr("x2", xScale(seconds[select + 1]))
         .attr("y2", 0)
         .attr("class", "timestep")
         .style("stroke-width", 3.5)

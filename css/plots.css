@@ -1,5 +1,37 @@
 * {box-sizing: border-box;}
 
+
+.intro {
+    width: 100vw;
+    height: 100vh;
+    background: #0f0a1c;
+}
+
+.intro video {
+    float: left;
+    /* width: 80vw; */
+}
+
+.intro .title {
+    position: absolute;
+    right: 0;
+    top: 60%;
+    width: 350px;
+    text-align: end;
+    right: 50px;
+    font-size: 42px;
+    font-weight: 600;
+}
+.intro .subtitle { 
+    position: absolute;
+    right: 0;
+    top: 80%;
+    width: 350px;
+    text-align: end;
+    right: 50px;
+    font-size: 20px;
+}
+
 .top-wrapper {
     position: relative;
 }
@@ -19,6 +51,8 @@
 
 #plots, #plots2 {
     width: 100%;
+        max-width: 100vw;
+    overflow: hidden;
     /* padding: 50px; */
     padding-left: 10px;
     /* background-color: rgb(20, 20, 30); */
@@ -86,7 +120,7 @@
     overflow: hidden;
 }
 
-video {
+.movie video {
     -webkit-box-shadow: 5px 5px 16px 9px #000000;
     box-shadow: 5px 5px 16px 9px #000000;
 }

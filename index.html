@@ -9,6 +9,7 @@
 	<!--Default styling for SuperBuilder content-->
 	<link rel="stylesheet" type="text/css" href="css/SuperBuilder_plain.css"></link>
 	<link rel="stylesheet" type="text/css" href="css/plots.css">
+	<link rel="stylesheet" type="text/css" href="css/buttons.css">
 	</link>
 	<title>Deep Water Asteroid Impact</title>
 
@@ -52,6 +53,21 @@
 </style>
 
 <body>
+<div class="intro">
+	<video autoplay muted loop id="myVideo">
+		<source src="GIFS/movie.mp4" type="video/mp4">
+	</video>
+	<div class="title">
+		Deep Water Asteroid Impacts Simulations
+	</div>
+	<div class="subtitle">
+	 November 2020
+	</div>
+
+	<section id="section03" class="demo">
+		<a href="#sidebar"><span></span></a>
+	</section>
+</div>
 	<div class="top-wrapper">
 		<div id="gradient"></div>
 		<div id="sidebar">
@@ -65,7 +81,10 @@
 				<br>
 				<select id="displaySelect" onchange="activateCurrentDisplay()"></select>
 			</div>
-			<div id="inputs"></div>
+			<div id="inputs">
+				<button>TTEST</button>
+				Hallo
+			</div>
 			<div id="input_names">
 				<span>Timestep</span>
 				<span>Y Rotation</span>
@@ -187,7 +206,7 @@
 	// var prevScrollpos = window.pageYOffset;
 	window.onscroll = function () {
 		var currentScrollPos = window.pageYOffset;
-		if (currentScrollPos > 400) {
+		if (currentScrollPos > 1400) {
 			document.getElementById("legends").style.opacity = "0";
 			document.getElementById("selections").style.opacity = "0";
 			document.getElementById("inputs").style.opacity = "0";
@@ -199,6 +218,12 @@
 		// prevScrollpos = currentScrollPos;
 	}
 
+	$(function () {
+		$('a').on('click', function (e) {
+			e.preventDefault();
+			$('html, body').animate({ scrollTop: $($(this).attr('href')).offset().top }, 500, 'linear');
+		});
+	});
 
 </script>
 
