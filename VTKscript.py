@@ -27,7 +27,7 @@ outputDir = "cvlibd/server/data/volume-render/tev_images"
 prs_outputDir = "cvlibd/server/data/volume-render/mov1"
 
 num_yValues = 1
-num_xValues = 50
+num_xValues = 1
 
 # if not os.path.isdir(outputDir):
 #     os.makedirs(outputDir)
@@ -53,7 +53,7 @@ def createImage(directory, outputDir, filename, scalars, opacities,
     interactor = vtk.vtkRenderWindowInteractor()
     interactor.SetRenderWindow(renWin)
     interactor.SetInteractorStyle(vtk.vtkInteractorStyleTrackballCamera())
-    aRenderer.SetBackground(15/255, 15/255, 25/255)
+    aRenderer.SetBackground(12/255, 10/255, 21/255)
 
     # Window size of final png file
     renWin.SetSize(920, 750)
@@ -107,7 +107,7 @@ def createImage(directory, outputDir, filename, scalars, opacities,
         colorTransferFunction = vtk.vtkColorTransferFunction()
         colorTransferFunction.SetColorSpaceToDiverging()
         # colorTransferFunction.SetHSVWrap(False)
-        if scalar_value == "v03":
+        if scalar_value == "tev":
             volumeGradientOpacity.AddPoint(dMax/2, opacity)
             colorTransferFunction.AddRGBPoint(dMin, 255/255, 255/255, 212/255) # light yellow
             colorTransferFunction.AddRGBPoint((dMax + dMin)/5, 254/255, 227/255, 145/255)
@@ -115,7 +115,7 @@ def createImage(directory, outputDir, filename, scalars, opacities,
             colorTransferFunction.AddRGBPoint((dMax + dMin)/3, 254/255, 153/255, 41/255)
             colorTransferFunction.AddRGBPoint((dMax + dMin)/2, 217/255, 95/255, 14/255)
             colorTransferFunction.AddRGBPoint((dMax + dMin), 163/255,62/255,4/255)
-        elif scalar_value == "tev":
+        elif scalar_value == "v03":
             colorTransferFunction.AddRGBPoint(dMax/3, 76/255, 0/255, 123/255) # Green
             colorTransferFunction.AddRGBPoint(dMin, 0, 184/255, 92/255)  # Purple
             volumeGradientOpacity.AddPoint(dMax/3, opacity)
@@ -183,8 +183,8 @@ def createImage(directory, outputDir, filename, scalars, opacities,
         volume.SetProperty(volumeProperty)
         aRenderer.AddActor(volume)
     
-    camera_pos_y = np.linspace(0.4, 0.3, num_yValues).tolist()
-    camera_pos_x = np.linspace(-3, 5, num_xValues).tolist()
+    camera_pos_y = np.linspace(0.1, 0.12, num_yValues).tolist()
+    camera_pos_x = np.linspace(0.5, 5, num_xValues).tolist()
     i = 0
     for pos_y in camera_pos_y:
         for pos_x in camera_pos_x:
@@ -206,7 +206,7 @@ def createImage(directory, outputDir, filename, scalars, opacities,
             aCamera.Dolly(1.2)
 
             # Stand van camera
-            aCamera.Elevation(5)
+            aCamera.Elevation(-0.1)
             aRenderer.ResetCameraClippingRange()
             renWin.Render()
 
@@ -223,7 +223,7 @@ def createImage(directory, outputDir, filename, scalars, opacities,
                 if "prs" in scalars:
                     outputFile = outputDir+"/" + str(filename.replace("pv_insitu_300x300x300_", "")) + str(i) + ".prs.png"
                 else:
-                    outputFile = outputDir+"/" + str(filename.replace("pv_insitu_300x300x300_", ""))  + "mov_" + str(i) +  ".png"
+                    outputFile = outputDir+"/" + str(filename.replace("pv_insitu_300x300x300_", ""))  + "background_" + str(i) +  ".png"
 
                 writer = vtk.vtkPNGWriter()
                 writer.SetFileName(outputFile)
@@ -486,13 +486,13 @@ def createImages(directory, outputDir, scalars, opacities, interactiveWindow):
 
 if __name__ == '__main__':
 
-    # scalars = ['prs', 'rho']
-    # opacities = [0.5, 0.1]
+    scalars = ['prs', 'rho']
+    opacities = [0.5, 0.1]
     # scalars = ['v02', 'tev']
-    # opacities = [0.1, 0.1]
-    # createImage(stored_folder, prs_outputDir, "pv_insitu_300x300x300_33719.vti",
-    #             scalars, opacities, interactiveWindow=False)
-    # exit()
+    # opacities = [0.01, 0.1]
+    createImage(stored_folder, prs_outputDir, "pv_insitu_300x300x300_37669.vti",
+                scalars, opacities, interactiveWindow=True)
+    exit()
     # scalars = ['rho', 'prs']
     # opacities = [0.8, 0.5]
     # createImages(stored_folder, prs_outputDir, scalars,
@@ -506,8 +506,8 @@ if __name__ == '__main__':
     #           num_yValues, num_xValues, output_type="scalars")
     # exit()
 
-    createGif(prs_outputDir, "GIFS/mov1")
-    exit()
+    # createGif(prs_outputDir, "GIFS/mov1")
+    # exit()
 
     # createGif_slices(outputDir, "GIFS/tev_slices")
     # exit()

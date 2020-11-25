@@ -16,31 +16,13 @@ def createGif(outputDir, filename):
     Returns a GIF from .png files in a given directory
     """
 
-
-
-    # img_array = []
-    
-    # for filename in glob.glob(outputDir + '/*.png'):
-    #     print(outputDir + "/" + filename)
-    #     img = cv2.imread(outputDir + "/" + filename)
-    #     height, width, layers = img.shape
-    #     size = (width, height)
-    #     img_array.append(img)
-
-    # out = cv2.VideoWriter('project.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 15, size)
-
-    # for i in range(len(img_array)):
-    #     out.write(img_array[i])
-    # out.release()
-    # exit()
-
     print("Creating GIF")
     images = os.listdir(outputDir)
-    images.sort(key=natural_keys)
+    images.sort(key=natural_keys, reverse=True)
     images = [Image.open(outputDir + '/' + i).convert('RGBA').quantize()
               for i in images if i.endswith('.png')]
 
-    images[0].save(filename + '.gif',
+    images[0].save(filename + '2.gif',
                    optimize=False,
                    duration=100,
                    save_all=True,

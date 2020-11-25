@@ -4,7 +4,9 @@ body {
 	font-family: "segoe", "arial", "sans-serif";
 	color: #eee;
 	text-align: center;
-	background-color: rgb(15, 15, 25)
+	background-color: rgb(15, 15, 25);
+	width: 100vw;
+	/* overflow: hidden; */
 }
 
 .cvlibD_structure {
@@ -62,13 +64,14 @@ body {
 }
 
 .normal_content {
-	margin-top: -310px;
+	/* margin-top: -310px; */
 }
 .normal_content img {
-	height: 88%;
+	height: 110%;
 }
 .prs_content {
-	margin-top: -380px;
+	margin-top: -180px;
+	float: right;
 }
 
 .SUPERBUILDER_Content .graticuleWrapper {

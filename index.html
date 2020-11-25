@@ -27,7 +27,8 @@
 </head>
 <style>
 	#sidebar {
-		position: relative;
+		position: absolute;
+		float: left;
 		top: 0px;
 		bottom: 0px;
 		left: 0px;
@@ -57,6 +58,7 @@
 	<video autoplay muted loop id="myVideo">
 		<source src="GIFS/movie.mp4" type="video/mp4">
 	</video>
+
 	<div class="title">
 		Deep Water Asteroid Impacts Simulations
 	</div>
@@ -67,7 +69,6 @@
 	</section>
 </div>
 	<div class="top-wrapper">
-		<div id="gradient"></div>
 		<div id="sidebar">
 
 			<div id="selections">
@@ -80,8 +81,6 @@
 				<select id="displaySelect" onchange="activateCurrentDisplay()"></select>
 			</div>
 			<div id="inputs">
-				<button>TTEST</button>
-				Hallo
 			</div>
 			<div id="input_names">
 				<span>Timestep</span>
@@ -115,12 +114,6 @@
 				<video width="80%" height="auto" controls>
 					<source src="GIFS/tev_mov.mov" type="video/mp4">
 				</video>
-				<!-- <div class="heatplot-item">
-					<img src="GIFS/tev_22010.gif" alt="GIF">
-				</div>
-				<div class="heatplot-vti-image">
-					<img src="GIFS/tev_slices.gif" alt="heatplot-vti-image"/>
-				</div> -->
 			</div>
 
 			<div class="splash">
@@ -128,8 +121,6 @@
 				<img src="GIFS/prs_rho.png" />
 			</div>
 		</div>
-
-		<hr class="hr"></hr>
 
 	</div>
 </body>
