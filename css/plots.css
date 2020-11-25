@@ -15,22 +15,22 @@
 .intro .title {
     position: absolute;
     right: 0;
-    top: 60%;
+    top: 500px;
     width: 350px;
     text-align: end;
     right: 50px;
     font-size: 42px;
     font-weight: 600;
 }
-.intro .subtitle { 
+/* .intro .subtitle { 
     position: absolute;
     right: 0;
-    top: 80%;
+    top: 700px;
     width: 350px;
     text-align: end;
     right: 50px;
     font-size: 20px;
-}
+} */
 
 .top-wrapper {
     position: relative;
