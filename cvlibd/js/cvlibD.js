@@ -201,24 +201,39 @@
 	 * Called whenever one of this display's input structures changes its query.
 	 * Updates the set of data to be displayed accordingly and sets the query for all output structures.
 	 */
-	CVLIBD.Display.prototype.updateInput = function() {
+	CVLIBD.Display.prototype.updateInput = function (rotation) {
+
+		if (rotation === "undefined") {
+			rotation = false
+		}
+
 		var intersection = [];
 		var self = this;
 		for (var i in this.source.data) {
 			var d = this.source.data[i];
-			var inAll = true;
-			for (var key in this.inputs) {
-				inAll = inAll && this.inputs[key].query.includes(d);
+			if (d !== [])
+			{	
+				var inAll = true;
+				for (var key in this.inputs) {
+					inAll = inAll && this.inputs[key].query.includes(d);
+
+					if (rotation && inAll) {
+						intersection.push(d);
+					}
+				}
 			}
+
 			if (inAll)
+			{
 				intersection.push(d);
+			}
+			
 		}
 		for (var key in this.outputs) {
 			var output = this.outputs[key];
 			output.query = intersection;
-
-			updateLine(intersection[0].Value - 1);
 			output.update();
+			updateLine(intersection[0].Value - 1);
 		}
 	}
 
@@ -332,8 +347,8 @@
 	CVLIBD.InputStructure.prototype = Object.create(CVLIBD.Structure.prototype);
 	CVLIBD.InputStructure.prototype.constructor = CVLIBD.InputStructure;
 
-	CVLIBD.InputStructure.prototype.update = function() {
-		this.display.updateInput();
+	CVLIBD.InputStructure.prototype.update = function(rotation) {
+		this.display.updateInput(rotation);
 	};
 
 	/**

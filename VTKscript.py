@@ -7,6 +7,7 @@ from PIL import Image
 import csv
 import pickle
 from helpers import createGif, createCSV, getInfo, createGif_slices, calcSplash
+import time
 
 # External disk
 # os.chdir('/Volumes/BLACKBOX/Paraview_VTK')
@@ -57,15 +58,24 @@ def createImage(directory, outputDir, filename, scalars, opacities,
 
     # Window size of final png file
     renWin.SetSize(920, 750)
-
+    print(" ")
     for scalar_value, opacity in zip(scalars, opacities):
+
+        time1 = time.time()
 
         # data reader
         reader = vtk.vtkXMLImageDataReader()
         reader.SetFileName(directory + "/" + filename)
         reader.Update()
 
+        time2 = time.time()
+        print('Reading took ', (time2-time1)*1)
+
+
         try:
+
+            time1 = time.time()
+
             # Set scalar_value
             reader.GetOutput().GetPointData().SetActiveAttribute(scalar_value, 0)
 
@@ -73,6 +83,11 @@ def createImage(directory, outputDir, filename, scalars, opacities,
             # This is a flat array, but can be reshaped to a (300x300x300) array
             dary = VN.vtk_to_numpy(
                 reader.GetOutput().GetPointData().GetScalars(scalar_value))
+
+            time2 = time.time()
+
+            print('vtk_to_numpy took ', (time2-time1)*1)
+
         except AttributeError:
             continue
 
@@ -95,6 +110,7 @@ def createImage(directory, outputDir, filename, scalars, opacities,
         outlineData.SetInputConnection(reader.GetOutputPort())
         outlineData.Update()
 
+        time1 = time.time()
         # Volume rendering
         # Create transfer mapping scalar value to opacity.
         opacityTransferFunction = vtk.vtkPiecewiseFunction()
@@ -102,11 +118,17 @@ def createImage(directory, outputDir, filename, scalars, opacities,
         opacityTransferFunction.AddPoint(dMax, opacity / 2)
         volumeGradientOpacity = vtk.vtkPiecewiseFunction()
         volumeGradientOpacity.AddPoint(dMin, 0)
+        time2 = time.time()
 
+        print('opacityTransferFunction took ', (time2-time1)*1)
+
+
+        time1 = time.time()
         # Create transfer mapping scalar value to color.
         colorTransferFunction = vtk.vtkColorTransferFunction()
         colorTransferFunction.SetColorSpaceToDiverging()
-        # colorTransferFunction.SetHSVWrap(False)
+
+        # COLOR FUNCTIONS
         if scalar_value == "tev":
             volumeGradientOpacity.AddPoint(dMax/2, opacity)
             colorTransferFunction.AddRGBPoint(dMin, 255/255, 255/255, 212/255) # light yellow
@@ -133,8 +155,8 @@ def createImage(directory, outputDir, filename, scalars, opacities,
             colorTransferFunction.AddRGBPoint((dMin + dMax)/3, 33/255, 102/255, 172/255)
         elif scalar_value == "rho":
             volumeGradientOpacity.AddPoint(dMax / 100, opacity)
-            # colorTransferFunction.AddRGBPoint((dMin / 6),  237/255, 224/255, 212/255) # light brown to brown
-            # colorTransferFunction.AddRGBPoint((dMax + dMin)/5,  230/255, 204/255, 178/255)
+            colorTransferFunction.AddRGBPoint((dMin / 6),  237/255, 224/255, 212/255) # light brown to brown
+            colorTransferFunction.AddRGBPoint((dMax + dMin)/5,  230/255, 204/255, 178/255)
             colorTransferFunction.AddRGBPoint((dMax + dMin)/4, 221/255, 184/255, 146/255)
             colorTransferFunction.AddRGBPoint((dMax + dMin)/3, 176/255, 137/255, 104/255)
             colorTransferFunction.AddRGBPoint((dMax + dMin)/2, 127/255, 85/255, 57/255)
@@ -144,12 +166,15 @@ def createImage(directory, outputDir, filename, scalars, opacities,
             aa_image.SetInputConnection(reader.GetOutputPort())
             thresh_image = vtk.vtkThreshold()
             thresh_image.SetInputConnection(aa_image.GetOutputPort())
-            thresh_image.ThresholdByLower(1/10e-1)
-            thresh_image.ThresholdByLower(1/10e-3)
+            thresh_image.ThresholdByUpper(10e-3)
             surface_image = vtk.vtkDataSetSurfaceFilter()
             surface_image.SetInputConnection(thresh_image.GetOutputPort())
             mapper_image = vtk.vtkPolyDataMapper()
             mapper_image.SetInputConnection(surface_image.GetOutputPort())
+
+        time2 = time.time()
+        print('colorTransferFunction took ', (time2-time1)*1)
+
 
         mapOutline = vtk.vtkPolyDataMapper()
         mapOutline.SetInputConnection(outlineData.GetOutputPort())
@@ -162,7 +187,6 @@ def createImage(directory, outputDir, filename, scalars, opacities,
             outline.SetMapper(mapOutline)
             outline.GetProperty().SetColor(colors.GetColor3d("Black"))
 
-
         # Create volume property (used for volume variable)
         volumeProperty = vtk.vtkVolumeProperty()
         volumeProperty.ShadeOff()
@@ -171,31 +195,44 @@ def createImage(directory, outputDir, filename, scalars, opacities,
         volumeProperty.SetGradientOpacity(volumeGradientOpacity)
         volumeProperty.SetInterpolationTypeToLinear()
 
+        time1 = time.time()
         # Render data
         volumeMapper = vtk.vtkGPUVolumeRayCastMapper()
-    
         volumeMapper.SetInputConnection(reader.GetOutputPort())
         volumeMapper.SetBlendModeToComposite()
 
+        time2 = time.time()
+        print('vtkGPUVolumeRayCastMapper took ', (time2-time1)*1)
+
+        time1 = time.time()
         # Position/orient volume
         volume = vtk.vtkVolume()
         volume.SetMapper(volumeMapper)
         volume.SetProperty(volumeProperty)
         aRenderer.AddActor(volume)
+
+        time2 = time.time()
+        print('vtkVolume took ', (time2-time1)*1)
+       
     
+    # Loop through camera positions
     camera_pos_y = np.linspace(0.1, 0.12, num_yValues).tolist()
     camera_pos_x = np.linspace(0.5, 5, num_xValues).tolist()
     i = 0
+
     for pos_y in camera_pos_y:
         for pos_x in camera_pos_x:
+
+            time1 = time.time()
+
             aCamera = vtk.vtkCamera()
             aCamera.SetViewUp(0, 0, 0)
             aCamera.SetPosition(pos_x, pos_y, 1)
             if "prs" in scalars:
-                # aCamera.SetFocalPoint(0, 0, 0.3)
-                aCamera.SetFocalPoint(0.6, 0.2, 0)
+                aCamera.SetFocalPoint(0, 0, 0.3)
             else:
                 aCamera.SetFocalPoint(0.6, 0.2, 0)
+
             aCamera.ComputeViewPlaneNormal()
 
             # Camera views
@@ -209,6 +246,7 @@ def createImage(directory, outputDir, filename, scalars, opacities,
             aCamera.Elevation(-0.1)
             aRenderer.ResetCameraClippingRange()
             renWin.Render()
+            print('Render took ', (time2-time1)*1)
 
             # Render interactive window!
             if interactiveWindow:
@@ -223,7 +261,7 @@ def createImage(directory, outputDir, filename, scalars, opacities,
                 if "prs" in scalars:
                     outputFile = outputDir+"/" + str(filename.replace("pv_insitu_300x300x300_", "")) + str(i) + ".prs.png"
                 else:
-                    outputFile = outputDir+"/" + str(filename.replace("pv_insitu_300x300x300_", ""))  + "background_" + str(i) +  ".png"
+                    outputFile = outputDir+"/" + str(filename.replace("pv_insitu_300x300x300_", ""))  + str(i) +  ".png"
 
                 writer = vtk.vtkPNGWriter()
                 writer.SetFileName(outputFile)
@@ -486,10 +524,10 @@ def createImages(directory, outputDir, scalars, opacities, interactiveWindow):
 
 if __name__ == '__main__':
 
-    scalars = ['prs', 'rho']
-    opacities = [0.5, 0.1]
-    # scalars = ['v02', 'tev']
-    # opacities = [0.01, 0.1]
+    # scalars = ['prs', 'rho']
+    # opacities = [0.5, 0.1]
+    scalars = ['v02']
+    opacities = [0.1, 0.1]
     createImage(stored_folder, prs_outputDir, "pv_insitu_300x300x300_37669.vti",
                 scalars, opacities, interactiveWindow=True)
     exit()

@@ -85,7 +85,7 @@ for (let i = 0; i < csvs.length; i++) {
                 .call(d3.axisLeft(yScale).tickFormat(function (d) {
                     if (i > 2 || i > 5)
                     {  return d3.format(".2f")(d / 1);}
-                    else { return d3.format(".1f")(d* 100); }
+                    else { return d3.format(".2f")(d* 10); }
                 })); // Create an axis component with d3.axisLeft
 
                 // 9. Append the path, bind the data, and call the line generator 
@@ -237,6 +237,7 @@ for (let i = 0; i < csvs.length; i++) {
                     .style("fill", "white")
                     .text(title[i]);
             }
+            
 
             function getNotation(minmax) {
                 if (names[i] == "prs") {

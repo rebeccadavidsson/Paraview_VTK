@@ -15,7 +15,6 @@
             "label": "Main view",
             "source": "data_csv",
             "structures": {
-      
                 "Value": {
                     "type": "scalar",
                     "label": "Timestep",

@@ -86,6 +86,7 @@ function imageZoom(imgID, resultID) {
 				break;
 			case 'camera-orbit':
 				SUPERBUILDER.camera_orbit_builder.call(this);
+				SUPERBUILDER.scalarBuilder.call(this);
 				break;
 			case 'table':
 				if (this.info.io == 'input')
@@ -212,6 +213,7 @@ function imageZoom(imgID, resultID) {
 	 */
 	SUPERBUILDER.camera_orbit_builder = function() {
 		var self = this;
+
 		//Determine phi and theta values
 		var pKey = this.info.arguments.phi_theta[0],
 			tKey = this.info.arguments.phi_theta[1];
@@ -248,7 +250,7 @@ function imageZoom(imgID, resultID) {
 				//rotate graticule
 				var dx = d3.event.dx/(graticule.squareSize/100);
 				var dy = d3.event.dy/(graticule.squareSize/100);
-				graticule.setRotation(graticule.phi+dx,graticule.theta-dy);
+				graticule.setRotation(-graticule.phi+dx, graticule.theta-dy);
 
 				//Get distance dragged since drag started or since phi or theta last updated
 				var dxTotal = d3.event.x - startX;
@@ -257,23 +259,21 @@ function imageZoom(imgID, resultID) {
 				if (Math.abs(dxTotal) > graticule.squareSize/pVals.length) {
 					pIndex = dxTotal > 0 ? Math.min(pVals.length-1,pIndex+1) :
 											Math.max(0,pIndex-1);
-					console.log(pIndex, "indexx");
 					startX = d3.event.x;
 					updateQuery();
-					self.update();
+					self.update(true);
 				}
 				//If y has changed enough, increment or decrement tIndex and update
 				if (Math.abs(dyTotal) > graticule.squareSize/tVals.length) {
 					tIndex = dyTotal > 0 ? Math.min(tVals.length-1,tIndex+1) :
 											Math.max(0,tIndex-1);
 					startY = d3.event.y;
-					console.log(pIndex, "indexy");
 					updateQuery();
-					self.update();
+					self.update(true);
 				}
 			})
 			.on('end', function() {
-				graticule.setRotation(0,0);
+				// graticule.setRotation(0,0);
 			}));
 
 		//Update query according to pIndex and tIndex
