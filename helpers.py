@@ -24,7 +24,7 @@ def createGif(outputDir, filename):
 
     images[0].save(filename + '2.gif',
                    optimize=False,
-                   duration=100,
+                   duration=70,
                    save_all=True,
                    interlace=False,
                    append_images=images[1:],

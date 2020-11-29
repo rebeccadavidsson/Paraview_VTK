@@ -8,32 +8,30 @@ import csv
 import pickle
 from helpers import createGif, createCSV, getInfo, createGif_slices, calcSplash
 import time
-import h5py
 
 # External disk
-# os.chdir('/Volumes/BLACKBOX/Paraview_VTK')
+os.chdir('/Volumes/BLACKBOX/Paraview_VTK')
 
 
 
 # Download this data yourself! It's not uploaded to Git.
-# Download from http://oceans11.lanl.gov/deepwaterimpact/yA31/300x300x300-FourScalars_resolution/
+# Download from http://oceans11.lanl.gov/deepwaterimpact/yA31
 
 # Specify the folder name where data is stored
-stored_folder = 'data'
+stored_folder = 'data_total'
 
 # Define the render method
 method = 'volume'
 
-# Output folder of images
-outputDir = "cvlibd/server/data/volume-render/tev_images"
-prs_outputDir = "cvlibd/server/data/volume-render/mov1"
-
 num_yValues = 1
 num_xValues = 1
 
-# if not os.path.isdir(outputDir):
-#     os.makedirs(outputDir)
+# Output folder of images
+outputDir = "cvlibd/server/data/volume-render/tev_images"
+if not os.path.isdir(outputDir):
+    os.makedirs(outputDir)
 
+# prs_outputDir = "cvlibd/server/data/volume-render/mov1"
 # if not os.path.isdir(prs_outputDir):
 #     os.makedirs(prs_outputDir)
 
@@ -59,15 +57,12 @@ def createImage(directory, outputDir, filename, scalars, opacities,
 
     # Window size of final png file
     renWin.SetSize(920, 750)
-    print(" ")
 
     for scalar_value, opacity in zip(scalars, opacities):
 
         # data reader
         reader = vtk.vtkXMLImageDataReader()
-        # reader.SetFileName(directory + "/" + filename)
-        
-        reader.SetFileName("pv_insitu_300x300x300_18124.vti")
+        reader.SetFileName(directory + "/" + filename)
 
         reader.Update()
         
@@ -80,8 +75,6 @@ def createImage(directory, outputDir, filename, scalars, opacities,
             # This is a flat array, but can be reshaped to a (300x300x300) array
             dary = VN.vtk_to_numpy(
                 reader.GetOutput().GetPointData().GetScalars(scalar_value))
-
-            # pickle.dump(dary, open("save.p", "wb")
         except AttributeError:
             continue
     
@@ -111,6 +104,7 @@ def createImage(directory, outputDir, filename, scalars, opacities,
         opacityTransferFunction.AddPoint(dMax, opacity / 2)
         volumeGradientOpacity = vtk.vtkPiecewiseFunction()
         volumeGradientOpacity.AddPoint(dMin, 0)
+
 
         # Create transfer mapping scalar value to color.
         colorTransferFunction = vtk.vtkColorTransferFunction()
@@ -184,27 +178,30 @@ def createImage(directory, outputDir, filename, scalars, opacities,
         volumeMapper.SetInputConnection(reader.GetOutputPort())
         volumeMapper.SetBlendModeToIsoSurface()
 
+
         # Position/orient volume
         volume = vtk.vtkVolume()
         volume.SetMapper(volumeMapper)
         volume.SetProperty(volumeProperty)
         aRenderer.AddActor(volume)
+       
     
     # Loop through camera positions
-    camera_pos_y = np.linspace(0.1, 0.12, num_yValues).tolist()
+    camera_pos_y = np.linspace(0.3, 0.4, num_yValues).tolist()
     camera_pos_x = np.linspace(0.5, 5, num_xValues).tolist()
     i = 0
 
     for pos_y in camera_pos_y:
         for pos_x in camera_pos_x:
 
+
             aCamera = vtk.vtkCamera()
             aCamera.SetViewUp(0, 0, 0)
             aCamera.SetPosition(pos_x, pos_y, 1)
-            # if "prs" in scalars:
-            #     aCamera.SetFocalPoint(0, 0, 0.3)
-            # else:
-            aCamera.SetFocalPoint(0.6, 0.2, 0)
+            if "prs" in scalars:
+                aCamera.SetFocalPoint(0, 0, 0.3)
+            else:
+                aCamera.SetFocalPoint(0.6, 0.2, 0)
 
             aCamera.ComputeViewPlaneNormal()
 
@@ -219,6 +216,7 @@ def createImage(directory, outputDir, filename, scalars, opacities,
             aCamera.Elevation(-0.1)
             aRenderer.ResetCameraClippingRange()
             renWin.Render()
+
 
             # Render interactive window!
             if interactiveWindow:
@@ -496,16 +494,16 @@ def createImages(directory, outputDir, scalars, opacities, interactiveWindow):
 
 if __name__ == '__main__':
 
-    scalars = ['prs']
-    opacities = [0.5]
-    # scalars = ['prs', 'tev', 'v02']
-    # opacities = [0.8, 0.5, 0.1]
-    createImage(stored_folder, prs_outputDir, "pv_insitu_300x300x300_18124.vti",
+    # scalars = ['prs', 'rho']
+    # opacities = [0.5, 0.1]
+    scalars = ['ydt']
+    opacities = [0.9]
+    createImage(stored_folder, outputDir, "pv_insitu_300x300x300_18592.vti",
                 scalars, opacities, interactiveWindow=True)
     exit()
-    # scalars = ['rho', 'prs']
-    # opacities = [0.8, 0.5]
-    # createImages(stored_folder, prs_outputDir, scalars,
+    # scalars = ['ydt']
+    # opacities = [0.9]
+    # createImages(stored_folder, outputDir, scalars,
     #              opacities, interactiveWindow=False)
     # exit()
 
