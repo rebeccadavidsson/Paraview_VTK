@@ -171,3 +171,18 @@
 .hr {
     border: 1px solid black;
 }
+
+.longformat img {
+    height: 90%;
+    object-fit: cover;
+}
+
+.longformat {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+}
+
+.colorbar {
+    height: 60% !important;
+    margin-top: 50px;
+}

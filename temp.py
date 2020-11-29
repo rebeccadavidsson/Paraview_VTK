@@ -9,27 +9,27 @@ import pickle
 from helpers import createGif, createCSV, getInfo, createGif_slices, calcSplash
 
 # External disk
-os.chdir('/Volumes/BLACKBOX/Paraview_VTK')
+# os.chdir('/Volumes/BLACKBOX/Paraview_VTK')
 
 
 # Download this data yourself! It's not uploaded to Git.
 # Download from http://oceans11.lanl.gov/deepwaterimpact/yA31/300x300x300-FourScalars_resolution/
 
 # Specify the folder name where data is stored
-stored_folder = 'data_total'
+stored_folder = 'data2'
 
 # Define the render method
 method = 'volume'
 
 # Output folder of images
-outputDir = "cvlibd/server/data/volume-render/tev_images"
+outputDir = "cvlibd/server/data/volume-render/long"
 prs_outputDir = "cvlibd/server/data/volume-render/prs_images"
 
 num_yValues = 1
 num_xValues = 1
 
-# if not os.path.isdir(outputDir):
-#     os.makedirs(outputDir)
+if not os.path.isdir(outputDir):
+    os.makedirs(outputDir)
 
 # if not os.path.isdir(prs_outputDir):
 #     os.makedirs(prs_outputDir)
@@ -55,13 +55,10 @@ def createImage(directory, outputDir, filename, scalars, opacities,
     aRenderer.SetBackground(15/255, 15/255, 25/255)
 
     # Window size of final png file
-    renWin.SetSize(850, 750)
+    renWin.SetSize(300, 700)
 
     for scalar_value, opacity in zip(scalars, opacities):
-
-        if "10487" in filename:
-            exit()
-
+    
         # data reader
         reader = vtk.vtkXMLImageDataReader()
         reader.SetFileName(directory + "/" + filename)
@@ -89,10 +86,10 @@ def createImage(directory, outputDir, filename, scalars, opacities,
             # dMin = 0.01869920
 
             dMax = 1.5
-            dMin = 0.1
+            dMin = 0.2
         if scalar_value == "v03":
             dMax = 1
-            dMin = 0.15
+            dMin = 0.05
 
         # Coloring
         hueLut = vtk.vtkLookupTable()
@@ -133,9 +130,9 @@ def createImage(directory, outputDir, filename, scalars, opacities,
             colorTransferFunction.AddRGBPoint(
                 (dMax + dMin)/3, 254/255, 153/255, 41/255)
             colorTransferFunction.AddRGBPoint(
-                (dMax + dMin)/2, 217/255, 95/255, 14/255)
+                (dMax + dMin)/2, 255/255, 55/255, 14/255)
             colorTransferFunction.AddRGBPoint(
-                (dMax + dMin), 163/255, 62/255, 4/255)
+                (dMax + dMin), 255/255, 0/255, 0/255)
         if scalar_value == "v03":
             volumeGradientOpacity.AddPoint(dMax/2, opacity)
             # colorTransferFunction.AddRGBPoint(
@@ -144,12 +141,12 @@ def createImage(directory, outputDir, filename, scalars, opacities,
             #     (dMax + dMin)/5, 254/255, 227/255, 145/255)
             # colorTransferFunction.AddRGBPoint(
             #     (dMax + dMin)/4, 254/255, 196/255, 79/255)
-            # colorTransferFunction.AddRGBPoint(
-            #     (dMax + dMin)/3, 254/255, 153/255, 41/255)
             colorTransferFunction.AddRGBPoint(
-                (dMax + dMin)/2, 217/255, 95/255, 14/255)
+                (dMax + dMin)/3, 254/255, 153/255, 41/255)
             colorTransferFunction.AddRGBPoint(
-                (dMax + dMin), 163/255, 62/255, 4/255)
+                (dMax + dMin)/2, 255/255, 255/255, 255/255)
+            colorTransferFunction.AddRGBPoint(
+                (dMax + dMin), 255/255, 0/255, 0/255)
         # elif scalar_value == "v03":
         #     colorTransferFunction.AddRGBPoint(
         #         dMax/3, 76/255, 0/255, 123/255)  # Green
@@ -233,19 +230,9 @@ def createImage(directory, outputDir, filename, scalars, opacities,
         volume.SetProperty(volumeProperty)
         aRenderer.AddActor(volume)
 
-        shadows = vtk.vtkShadowMapPass()
-        shadows = vtk.vtkShadowMapPass()
-
-        seq = vtk.vtkSequencePass()
-
-        passes = vtk.vtkRenderPassCollection()
-        passes.AddItem(shadows.GetShadowMapBakerPass())
-        passes.AddItem(shadows)
-        seq.SetPasses(passes)
-
-        cameraP = vtk.vtkCameraPass()
-        cameraP.SetDelegatePass(seq)
-
+    # scalarbar_actor = vtk.vtkScalarBarActor()
+    # scalarbar_actor.SetLookupTable(colorTransferFunction)
+    # aRenderer.AddActor(scalarbar_actor)
 
     camera_pos_y = np.linspace(0.1, 0.3, num_yValues).tolist()
     camera_pos_x = np.linspace(0, 2.5, num_xValues).tolist()
@@ -254,11 +241,11 @@ def createImage(directory, outputDir, filename, scalars, opacities,
         for pos_x in camera_pos_x:
             aCamera = vtk.vtkCamera()
             aCamera.SetViewUp(0, 0, 0)
-            aCamera.SetPosition(pos_x, pos_y, 1)
+            aCamera.SetPosition(0, 0, 1)
             if "prs" in scalars:
                 aCamera.SetFocalPoint(0, 0, 0.3)
             else:
-                aCamera.SetFocalPoint(0.6, 0.2, 0)
+                aCamera.SetFocalPoint(20, 0, 0)
             aCamera.ComputeViewPlaneNormal()
 
             # Camera views
@@ -266,10 +253,10 @@ def createImage(directory, outputDir, filename, scalars, opacities,
             aRenderer.ResetCamera()
 
             # Zooming in
-            aCamera.Dolly(1)
+            aCamera.Dolly(3)
 
             # Stand van camera
-            aCamera.Elevation(5)
+            aCamera.Elevation(1)
             aRenderer.ResetCameraClippingRange()
             renWin.Render()
 
@@ -286,7 +273,7 @@ def createImage(directory, outputDir, filename, scalars, opacities,
                 if "prs" in scalars:
                     outputFile = outputDir+"/" + \
                         str(filename.replace("pv_insitu_300x300x300_", "")
-                            ) + "_" + str(i) + ".prs.png"
+                            ) + "_" + str(i) + ".long.png"
                 else:
                     outputFile = outputDir+"/" + \
                         str(filename.replace("pv_insitu_300x300x300_", "")
@@ -555,11 +542,18 @@ def createImages(directory, outputDir, scalars, opacities, interactiveWindow):
 
 if __name__ == '__main__':
 
-    # scalars = ['prs', 'v03', 'tev']
-    # opacities = [0.9, 0.4, 0.6]
-    # createImages(stored_folder, outputDir, scalars, opacities, interactiveWindow=True)
-    createGif(outputDir, "GIFS/timeline")
+    # scalars = ['v03', 'tev']
+    # opacities = [0.3, 0.45]
+    # createImage(stored_folder, outputDir, "pv_insitu_300x300x300_08948.vti",
+    #                 scalars, opacities, interactiveWindow=True)
+    # exit()
+    scalars = ['v03', 'tev']
+    opacities = [0.3, 0.45]
+    createImages(stored_folder, outputDir,
+                    scalars, opacities, interactiveWindow=False)
     exit()
+    # createGif(outputDir, "GIFS/timeline")
+    # exit()
     # scalars = ['rho', 'prs']
     # opacities = [0.8, 0.5]
     # createImages(stored_folder, prs_outputDir, scalars,
