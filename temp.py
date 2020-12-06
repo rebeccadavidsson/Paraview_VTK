@@ -16,7 +16,7 @@ from helpers import createGif, createCSV, getInfo, createGif_slices, calcSplash
 # Download from http://oceans11.lanl.gov/deepwaterimpact/yA31/300x300x300-FourScalars_resolution/
 
 # Specify the folder name where data is stored
-stored_folder = 'data2'
+stored_folder = 'data'
 
 # Define the render method
 method = 'volume'
@@ -298,14 +298,7 @@ def createPlaneImage(directory, outputDir, filename,
     colors = vtk.vtkNamedColors()
     aRenderer = vtk.vtkRenderer()
     renWin = vtk.vtkRenderWindow()
-    renWin.AddRenderer(aRenderer)
-    interactor = vtk.vtkRenderWindowInteractor()
-    interactor.SetRenderWindow(renWin)
-    interactor.SetInteractorStyle(vtk.vtkInteractorStyleTrackballCamera())
-    aRenderer.SetBackground(255/255, 255/255, 255/255)
-
-    # Window size of final png file
-    renWin.SetSize(750, 550)
+    
 
     if interactiveWindow:
         x_locations = np.linspace(-2282674.723407029, 2304660.8051767494, 1)
@@ -338,8 +331,16 @@ def createPlaneImage(directory, outputDir, filename,
     hueLut.SetSaturationRange(dMin, dMax)
     hueLut.SetValueRange(dMin, dMax)
     hueLut.SetTableValue(dMin, 0/255, 0/255, 255/255)
-    hueLut.SetTableValue(dMax, 0/255, 0/255, 255/255)
+    hueLut.SetTableValue(dMax, 255/255, 0/255, 0/255)
     hueLut.Build()
+
+    hueLut2 = vtk.vtkLookupTable()
+    hueLut2.SetTableRange(0, 1)
+    hueLut2.SetSaturationRange(0, 1)
+    hueLut2.SetValueRange(0, 1)
+    hueLut2.SetTableValue(0, 0/255, 0/255, 255/255)
+    hueLut2.SetTableValue(1, 0/255, 0/255, 255/255)
+    hueLut2.Build()
 
     ctf = vtk.vtkColorTransferFunction()
     ctf.SetColorSpaceToDiverging()
@@ -435,32 +436,21 @@ def createPlaneImage(directory, outputDir, filename,
         volume.SetProperty(volumeProperty)
         aRenderer.AddActor(volume)
 
-        #create a plane to cut,here it cuts in the XZ direction (xz normal=(1,0,0);XY =(0,0,1),YZ =(0,1,0)
-        plane = vtk.vtkPlane()
-        plane.SetOrigin(x, 900000.0000024999, -6.400048732757568e-01)
-        plane.SetNormal(1, 0, 0)
-
-        #create cutter
-        cutter = vtk.vtkCutter()
-        cutter.SetCutFunction(plane)
-        cutter.SetInputConnection(reader.GetOutputPort())
-        cutter.Update()
-        cutterMapper = vtk.vtkPolyDataMapper()
-        cutterMapper.SetInputConnection(cutter.GetOutputPort())
-        cutterMapper.SetLookupTable(hueLut)
-        # cutterMapper.SetColorModeToDirectScalars()
-
-        #create plane actor
-        planeActor = vtk.vtkActor()
-        planeActor.GetProperty().SetColor(0, 0, 1)
-        planeActor.GetProperty().SetLineWidth(1)
-        planeActor.SetMapper(cutterMapper)
-        aRenderer.AddActor(planeActor)
+        lightActor = vtk.vtkLight()
+        lightActor.SetPosition(0, 1, 1)
+        lightActor.SetFocalPoint(0, -1, 10)
+        # lightActor.SetSpecularColor(0.4, 0.4, 0.1)
+        lightActor.SetIntensity(0.8)
+        aRenderer.AddLight(lightActor)
 
         #create a plane to cut,here it cuts in the XZ direction (xz normal=(1,0,0);XY =(0,0,1),YZ =(0,1,0)
         plane2 = vtk.vtkPlane()
         plane2.SetOrigin(0, 0, 0)
         plane2.SetNormal(0, 1, 0)
+        transform = vtk.vtkGeneralTransform()
+        # transform.Translate(1000000000.0,0,100.0)
+        transform.Scale(10000000, 2000000000, 2000)
+        plane2.SetTransform(transform)
 
         #create cutter
         cutter = vtk.vtkCutter()
@@ -469,14 +459,47 @@ def createPlaneImage(directory, outputDir, filename,
         cutter.Update()
         cutterMapper = vtk.vtkPolyDataMapper()
         cutterMapper.SetInputConnection(cutter.GetOutputPort())
-        cutterMapper.SetColorModeToDirectScalars()
+        cutterMapper.SetScalarRange(0, 1)
+        cutterMapper.SetLookupTable(hueLut2)
+        cutterMapper.SetColorModeToMapScalars()
 
         #create plane actor
         planeActor = vtk.vtkActor()
-        planeActor.GetProperty().SetColor(1, 1, 1)
+        # planeActor.GetProperty().SetColor(1, 0.5, 0.5)
         planeActor.GetProperty().SetLineWidth(3)
         planeActor.SetMapper(cutterMapper)
+        planeActor.SetScale(7)
+        planeActor.SetPosition(-100000, 0, 0)
         aRenderer.AddActor(planeActor)
+
+        #create a plane to cut,here it cuts in the XZ direction (xz normal=(1,0,0);XY =(0,0,1),YZ =(0,1,0)
+        plane2 = vtk.vtkPlane()
+        plane2.SetOrigin(0, 0, 0)
+        plane2.SetNormal(0, 1, 0)
+        transform = vtk.vtkGeneralTransform()
+        # transform.Translate(1000000000.0,0,100.0)
+        transform.Scale(10000000, 2000000000, 2000)
+        plane2.SetTransform(transform)
+
+        #create cutter
+        cutter = vtk.vtkCutter()
+        cutter.SetCutFunction(plane2)
+        cutter.SetInputConnection(reader.GetOutputPort())
+        cutter.Update()
+        cutterMapper = vtk.vtkPolyDataMapper()
+        cutterMapper.SetInputConnection(cutter.GetOutputPort())
+        cutterMapper.SetScalarRange(0, 1)
+        cutterMapper.SetLookupTable(hueLut2)
+        cutterMapper.SetColorModeToMapScalars()
+
+        #create plane actor
+        planeActor = vtk.vtkActor()
+        # planeActor.GetProperty().SetColor(1, 0.5, 0.5)
+        planeActor.GetProperty().SetLineWidth(3)
+        planeActor.SetMapper(cutterMapper)
+        planeActor.SetPosition(-100000, 0, 0)
+        aRenderer.AddActor(planeActor)
+
 
         aCamera = vtk.vtkCamera()
         aCamera.SetViewUp(0, 1, 0)
@@ -487,14 +510,28 @@ def createPlaneImage(directory, outputDir, filename,
         # Camera views
         aRenderer.SetActiveCamera(aCamera)
         aRenderer.ResetCamera()
-        aRenderer.SetBackground(1, 1, 1)
+        aRenderer.SetBackground(0.3, 0.3, 0.33)
+        aRenderer.SetBackground2(0.1, 0.1, 0.13)
+        aRenderer.GradientBackgroundOn()
+
+
+        # renWin.SetPixelAspect(10000,10000)
+        renWin.AddRenderer(aRenderer)
+        interactor = vtk.vtkRenderWindowInteractor()
+        interactor.SetRenderWindow(renWin)
+        interactor.SetInteractorStyle(vtk.vtkInteractorStyleTrackballCamera())
+
+        # Window size of final png file
+        renWin.SetSize(1024, 768)
 
         # Zooming in
-        aCamera.Dolly(1.4)
+        aCamera.Dolly(5)
 
         # Stand van camera
         aCamera.Elevation(13)
+        # aRenderer.ResetCamera()
         aRenderer.ResetCameraClippingRange()
+        # aRenderer.ResetCameraClippingRange(-1000000000,10000000,-100000000,100000000,10000000,0.0000001)
         renWin.Render()
 
         # Render interactive window!
@@ -541,17 +578,16 @@ def createImages(directory, outputDir, scalars, opacities, interactiveWindow):
 
 
 if __name__ == '__main__':
-
-    # scalars = ['v03', 'tev']
-    # opacities = [0.3, 0.45]
-    # createImage(stored_folder, outputDir, "pv_insitu_300x300x300_08948.vti",
-    #                 scalars, opacities, interactiveWindow=True)
-    # exit()
     scalars = ['v03', 'tev']
     opacities = [0.3, 0.45]
-    createImages(stored_folder, outputDir,
-                    scalars, opacities, interactiveWindow=False)
+    createPlaneImage(stored_folder, outputDir, "pv_insitu_300x300x300_29693.vti",
+                    interactiveWindow=True)
     exit()
+    # scalars = ['v03', 'tev']
+    # opacities = [0.3, 0.45]
+    # createImages(stored_folder, outputDir,
+    #                 scalars, opacities, interactiveWindow=False)
+    # exit()
     # createGif(outputDir, "GIFS/timeline")
     # exit()
     # scalars = ['rho', 'prs']

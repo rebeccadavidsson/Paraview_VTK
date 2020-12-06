@@ -151,7 +151,7 @@
     grid-template-columns: 1fr 1fr;
 }
 .splash img {
-    width: 115%;
+    width: 100%;
     overflow: hidden;
 }
 .grids {
@@ -185,4 +185,13 @@
 .colorbar {
     height: 60% !important;
     margin-top: 50px;
+}
+
+.width-100  {
+    width: 100%;
+    margin-top: 80vw;
+}
+
+.width_wrapper {
+    /* margin-top: 600px; */
 }

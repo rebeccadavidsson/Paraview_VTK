@@ -390,39 +390,51 @@ def createPlaneImage(directory, outputDir, filename,
         aRenderer.AddActor(volume)
 
         #create a plane to cut,here it cuts in the XZ direction (xz normal=(1,0,0);XY =(0,0,1),YZ =(0,1,0)
-        plane = vtk.vtkPlane()
-        plane.SetOrigin(x, 900000.0000024999, -6.400048732757568e-01)
-        plane.SetNormal(1, 0, 0)
+        # plane = vtk.vtkPlane()
+        # plane.SetOrigin(x, 900000.0000024999, -6.400048732757568e-01)
+        # plane.SetNormal(1, 0, 0)
 
         #create cutter
-        cutter = vtk.vtkCutter()
-        cutter.SetCutFunction(plane)
-        cutter.SetInputConnection(reader.GetOutputPort())
-        cutter.Update()
-        cutterMapper = vtk.vtkPolyDataMapper()
-        cutterMapper.SetInputConnection(cutter.GetOutputPort())
-        cutterMapper.SetLookupTable(hueLut)
+        # cutter = vtk.vtkCutter()
+        # cutter.SetCutFunction(plane)
+        # cutter.SetInputConnection(reader.GetOutputPort())
+        # cutter.Update()
+        # cutterMapper = vtk.vtkPolyDataMapper()
+        # cutterMapper.SetInputConnection(cutter.GetOutputPort())
+        # cutterMapper.SetLookupTable(hueLut)
         # cutterMapper.SetColorModeToDirectScalars()
 
         #create plane actor
-        planeActor = vtk.vtkActor()
-        planeActor.GetProperty().SetColor(0, 0, 1)
-        planeActor.GetProperty().SetLineWidth(1)
-        planeActor.SetMapper(cutterMapper)
-        aRenderer.AddActor(planeActor)
+        # planeActor = vtk.vtkActor()
+        # planeActor.GetProperty().SetColor(0, 0, 1)
+        # planeActor.GetProperty().SetLineWidth(1)
+        # planeActor.SetMapper(cutterMapper)
+        # aRenderer.AddActor(planeActor)
 
         #create a plane to cut,here it cuts in the XZ direction (xz normal=(1,0,0);XY =(0,0,1),YZ =(0,1,0)
         plane2 = vtk.vtkPlane()
         plane2.SetOrigin(0, 0, 0)
         plane2.SetNormal(0, 1, 0)
+        plane2.SetBounds([-100, -1000, 10, 10, 10])
+
+        # scale = (1, 2, 1)
+        # transform = vtk.vtkTransform()
+        # transform.Scale(scale)
 
         #create cutter
         cutter = vtk.vtkCutter()
         cutter.SetCutFunction(plane2)
         cutter.SetInputConnection(reader.GetOutputPort())
         cutter.Update()
+
+        tubes = vtk.vtkTubeFilter()
+        tubes.SetInputConnection(cutter.GetOutputPort())
+        tubes.SetRadius(1)
+        tubes.SetNumberOfSides(2)
+        tubes.CappingOn()
+
         cutterMapper = vtk.vtkPolyDataMapper()
-        cutterMapper.SetInputConnection(cutter.GetOutputPort())
+        cutterMapper.SetInputConnection(tubes.GetOutputPort())
         cutterMapper.SetColorModeToDirectScalars()
         
         #create plane actor
@@ -432,16 +444,19 @@ def createPlaneImage(directory, outputDir, filename,
         planeActor.SetMapper(cutterMapper)
         aRenderer.AddActor(planeActor)
 
+
+
         aCamera = vtk.vtkCamera()
+        # aCamera.SetClippingRange(0.5, -11)
         aCamera.SetViewUp(0, 1, 0)
-        aCamera.SetPosition(0, 0, 1) 
-        aCamera.SetFocalPoint(0.6, 0.2, 0)
-        aCamera.ComputeViewPlaneNormal()
+        # aCamera.SetPosition(0, 0, 1) 
+        # aCamera.SetFocalPoint(0.6, 0.2, 0)
+        # aCamera.ComputeViewPlaneNormal()
 
         # Camera views
         aRenderer.SetActiveCamera(aCamera)
         aRenderer.ResetCamera()
-        aRenderer.SetBackground(1, 1, 1)
+        aRenderer.SetBackground(0.1, 0.1, 0.1)
 
         # Zooming in
         aCamera.Dolly(1.4)
@@ -496,12 +511,13 @@ def createImages(directory, outputDir, scalars, opacities, interactiveWindow):
 
 if __name__ == '__main__':
 
-    scalars = ['prs']
+    scalars = ['tev']
     opacities = [0.5]
     # scalars = ['prs', 'tev', 'v02']
     # opacities = [0.8, 0.5, 0.1]
-    createImage(stored_folder, prs_outputDir, "pv_insitu_300x300x300_18124.vti",
-                scalars, opacities, interactiveWindow=True)
+    # createImage(stored_folder, prs_outputDir, "pv_insitu_500x500x500_09782.vti",
+    #             scalars, opacities, interactiveWindow=True)
+    createPlaneImage(stored_folder, prs_outputDir,"pv_insitu_300x300x300_01141.vti", interactiveWindow=True)
     exit()
     # scalars = ['rho', 'prs']
     # opacities = [0.8, 0.5]
