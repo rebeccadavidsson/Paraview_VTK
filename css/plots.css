@@ -143,12 +143,16 @@
     text-align: center;
     color: #e4e4e4;
 }
-
+.wrapper-title {
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
 .splash {
     padding: 10px;
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    width: 80%;
+    margin: 0 auto;
+    /* display: grid; */
+    /* grid-template-columns: 1fr 1fr; */
 }
 .splash img {
     width: 100%;
