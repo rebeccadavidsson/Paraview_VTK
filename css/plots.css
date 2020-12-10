@@ -7,6 +7,11 @@
     background: #0f0a1c;
 }
 
+.intro img {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+}
 .intro video {
     float: left;
     /* width: 80vw; */
@@ -18,9 +23,10 @@
     top: 500px;
     width: 350px;
     text-align: end;
-    right: 50px;
-    font-size: 42px;
-    font-weight: 600;
+    right: 55px;
+    font-size: 44px;
+    font-weight: 800;
+    color: #0f1228;
 }
 /* .intro .subtitle { 
     position: absolute;
@@ -123,12 +129,12 @@
     margin: 0 auto;
     left: 50%;
     transform: translateX(-50%);
-    position: absolute;
+    position: relative;
     padding: 35px;
     width: 100%;
-    margin-bottom: 50px;
     background-color: #0f0f19;
     overflow: hidden;
+    padding-bottom: 0;
 }
 
 .heatplot-wrapper div {
@@ -191,11 +197,29 @@
     margin-top: 50px;
 }
 
+
 .width-100  {
     width: 100%;
     margin-top: 80vw;
 }
+.gradientbackground {
+    height: 20px;
+    background: rgb(121,99,127);
+background: linear-gradient(0, rgba(121,99,127,1) 0%, rgba(13,13,20,0.12986513453037467) 100%);
+}
 
-.width_wrapper {
-    /* margin-top: 600px; */
+.backgroundbottom {
+    width: 100%;
+    margin-top: -170px;
+    position: relative;
+}
+.backgroundbottom > img {
+    width: 100%;
+}
+
+.footer {
+        position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
 }
