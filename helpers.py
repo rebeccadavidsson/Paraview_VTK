@@ -6,8 +6,6 @@ import vtk.util.numpy_support as VN
 import csv
 from PIL import Image
 import re
-import cv2
-import glob
 
 
 

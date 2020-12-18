@@ -10,10 +10,6 @@ from helpers import createGif, createCSV, getInfo, createGif_slices, calcSplash
 import time
 import h5py
 
-# External disk
-# os.chdir('/Volumes/BLACKBOX/Paraview_VTK')
-
-
 
 # Download this data yourself! It's not uploaded to Git.
 # Download from http://oceans11.lanl.gov/deepwaterimpact/yA31/300x300x300-FourScalars_resolution/
@@ -31,11 +27,11 @@ prs_outputDir = "cvlibd/server/data/volume-render/mov1"
 num_yValues = 1
 num_xValues = 1
 
-# if not os.path.isdir(outputDir):
-#     os.makedirs(outputDir)
+if not os.path.isdir(outputDir):
+    os.makedirs(outputDir)
 
-# if not os.path.isdir(prs_outputDir):
-#     os.makedirs(prs_outputDir)
+if not os.path.isdir(prs_outputDir):
+    os.makedirs(prs_outputDir)
 
 
 def createImage(directory, outputDir, filename, scalars, opacities, 
@@ -65,26 +61,17 @@ def createImage(directory, outputDir, filename, scalars, opacities,
 
         # data reader
         reader = vtk.vtkXMLImageDataReader()
-        # reader.SetFileName(directory + "/" + filename)
-        
-        reader.SetFileName("pv_insitu_300x300x300_18124.vti")
-
+        reader.SetFileName(directory + "/" + filename)
         reader.Update()
         
-        try:
+        # Set scalar_value
+        reader.GetOutput().GetPointData().SetActiveAttribute(scalar_value, 0)
 
-            # Set scalar_value
-            reader.GetOutput().GetPointData().SetActiveAttribute(scalar_value, 0)
+        # Get the min and maximum value from the array of points.
+        # This is a flat array, but can be reshaped to a (300x300x300) array
+        dary = VN.vtk_to_numpy(
+            reader.GetOutput().GetPointData().GetScalars(scalar_value))
 
-            # Get the min and maximum value from the array of points.
-            # This is a flat array, but can be reshaped to a (300x300x300) array
-            dary = VN.vtk_to_numpy(
-                reader.GetOutput().GetPointData().GetScalars(scalar_value))
-
-            # pickle.dump(dary, open("save.p", "wb")
-        except AttributeError:
-            continue
-    
         dMax = np.amax(dary)
         dMin = np.amin(dary)
 
@@ -201,9 +188,6 @@ def createImage(directory, outputDir, filename, scalars, opacities,
             aCamera = vtk.vtkCamera()
             aCamera.SetViewUp(0, 0, 0)
             aCamera.SetPosition(pos_x, pos_y, 1)
-            # if "prs" in scalars:
-            #     aCamera.SetFocalPoint(0, 0, 0.3)
-            # else:
             aCamera.SetFocalPoint(0.6, 0.2, 0)
 
             aCamera.ComputeViewPlaneNormal()
@@ -288,7 +272,6 @@ def createPlaneImage(directory, outputDir, filename,
     dMax = np.amax(dary)
     dMin = np.amin(dary)
 
-    
     # Coloring
     hueLut = vtk.vtkLookupTable()
     hueLut.SetTableRange(dMin, dMax)
@@ -390,28 +373,6 @@ def createPlaneImage(directory, outputDir, filename,
         aRenderer.AddActor(volume)
 
         #create a plane to cut,here it cuts in the XZ direction (xz normal=(1,0,0);XY =(0,0,1),YZ =(0,1,0)
-        # plane = vtk.vtkPlane()
-        # plane.SetOrigin(x, 900000.0000024999, -6.400048732757568e-01)
-        # plane.SetNormal(1, 0, 0)
-
-        #create cutter
-        # cutter = vtk.vtkCutter()
-        # cutter.SetCutFunction(plane)
-        # cutter.SetInputConnection(reader.GetOutputPort())
-        # cutter.Update()
-        # cutterMapper = vtk.vtkPolyDataMapper()
-        # cutterMapper.SetInputConnection(cutter.GetOutputPort())
-        # cutterMapper.SetLookupTable(hueLut)
-        # cutterMapper.SetColorModeToDirectScalars()
-
-        #create plane actor
-        # planeActor = vtk.vtkActor()
-        # planeActor.GetProperty().SetColor(0, 0, 1)
-        # planeActor.GetProperty().SetLineWidth(1)
-        # planeActor.SetMapper(cutterMapper)
-        # aRenderer.AddActor(planeActor)
-
-        #create a plane to cut,here it cuts in the XZ direction (xz normal=(1,0,0);XY =(0,0,1),YZ =(0,1,0)
         plane2 = vtk.vtkPlane()
         plane2.SetOrigin(0, 0, 0)
         plane2.SetNormal(0, 1, 0)
@@ -444,14 +405,8 @@ def createPlaneImage(directory, outputDir, filename,
         planeActor.SetMapper(cutterMapper)
         aRenderer.AddActor(planeActor)
 
-
-
         aCamera = vtk.vtkCamera()
-        # aCamera.SetClippingRange(0.5, -11)
         aCamera.SetViewUp(0, 1, 0)
-        # aCamera.SetPosition(0, 0, 1) 
-        # aCamera.SetFocalPoint(0.6, 0.2, 0)
-        # aCamera.ComputeViewPlaneNormal()
 
         # Camera views
         aRenderer.SetActiveCamera(aCamera)
@@ -460,7 +415,6 @@ def createPlaneImage(directory, outputDir, filename,
 
         # Zooming in
         aCamera.Dolly(1.4)
-
 
         # Stand van camera
         aCamera.Elevation(13)
@@ -510,44 +464,7 @@ def createImages(directory, outputDir, scalars, opacities, interactiveWindow):
 
 
 if __name__ == '__main__':
-
-    scalars = ['tev']
-    opacities = [0.5]
-    # scalars = ['prs', 'tev', 'v02']
-    # opacities = [0.8, 0.5, 0.1]
-    # createImage(stored_folder, prs_outputDir, "pv_insitu_500x500x500_09782.vti",
-    #             scalars, opacities, interactiveWindow=True)
-    createPlaneImage(stored_folder, prs_outputDir,"pv_insitu_300x300x300_01141.vti", interactiveWindow=True)
-    exit()
-    # scalars = ['rho', 'prs']
-    # opacities = [0.8, 0.5]
-    # createImages(stored_folder, prs_outputDir, scalars,
-    #              opacities, interactiveWindow=False)
-    # exit()
-
-    # createCSV(prs_outputDir, "cvlibd/server/data/volume-render/data_prs.csv", 
-    #         num_yValues, num_xValues, output_type="prs")
-    # exit()
-    # createCSV(outputDir, "cvlibd/server/data/volume-render/data.csv", 
-    #           num_yValues, num_xValues, output_type="scalars")
-    # exit()
-
-    # createGif(prs_outputDir, "GIFS/mov1")
-    # exit()
-
-    # createGif_slices(outputDir, "GIFS/tev_slices")
-    # exit()
-
-    # Convert data to csv for plotting
-    # getInfo('data')
-    # exit()
     
-    # Test image with one file
-    # createPlaneImage('data', outputDir, "pv_insitu_300x300x300_22010.vti",
-    #             interactiveWindow=True)
-    # exit()
-
-
     # Choose scalar value to plot.
     # You can choose from 'v02', 'v03', 'prs' and 'tev'.
     print("Creating images")
@@ -555,14 +472,18 @@ if __name__ == '__main__':
     opacities = [0.1, 0.3, 0.1]
     createImages(stored_folder, outputDir, scalars,
                  opacities, interactiveWindow=False)
-    exit()
 
     # print("Creating pressure images")
     scalars = ['prs', 'rho']
     opacities = [0.7, 0.5]
     createImages(stored_folder, prs_outputDir, scalars,
                  opacities, interactiveWindow=False)
-    exit()
+
+    scalars = ['prs', 'tev', 'v02']
+    opacities = [0.8, 0.5, 0.1]
+    createImage(stored_folder, prs_outputDir, "pv_insitu_500x500x500_09782.vti",
+                scalars, opacities, interactiveWindow=True)
+    # createPlaneImage(stored_folder, prs_outputDir, "pv_insitu_300x300x300_01141.vti", interactiveWindow=True)
 
     # Choose to comment function out or not
     createGif(outputDir, "GIFS/allscalars")
